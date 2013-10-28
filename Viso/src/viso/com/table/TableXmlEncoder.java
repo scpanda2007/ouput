@@ -10,10 +10,6 @@ import org.dom4j.Element;
 
 
 class DefaultTableXmlEncoder extends TableXmlEncoder{
-
-	static{
-		register("default", (new DefaultTableXmlEncoder()));
-	}
 	
 	@Override
 	protected Element innerPrintSelfTo() {
@@ -34,7 +30,7 @@ public abstract class TableXmlEncoder {
 	
 	protected static Map<String, TableXmlEncoder> encoders = new HashMap<String, TableXmlEncoder>();
 	
-	protected static void register(String type, TableXmlEncoder encoder){
+	public static void register(String type, TableXmlEncoder encoder){
 		encoders.put(type, encoder);
 	}
 	
@@ -42,17 +38,17 @@ public abstract class TableXmlEncoder {
 		public Element PrintObjectTo(Element node, String key, Object obj);
 	}
 	
-	public static TableXmlEncoder instance;
-	
-	TableXmlEncoder instance(){
-		if(instance==null){
-			instance = new DefaultTableXmlEncoder();
-		}
-		return instance;
+	protected static boolean TableXmlEncoderInitOnce = false;
+	public static void registerAll(){
+		if(TableXmlEncoderInitOnce)return;
+		encoders.put("default", new DefaultTableXmlEncoder());
 	}
 	
-	public static Element print(String decoder, Element tonode, Table totable){
-		return encoders.get(decoder).print(tonode, totable);
+	public static Element print(String encoder, Element tonode, Table totable){
+		if(!encoders.containsKey(encoder)){
+			throw new IllegalStateException(" the encoder class : <"+encoder+"> can not be found. ");
+		}
+		return encoders.get(encoder).print(tonode, totable);
 	}
 	
 	/**
@@ -61,7 +57,8 @@ public abstract class TableXmlEncoder {
 	public Element print(Element node, Table table){
 		this.node = node;
 		this.table = table;
-		return innerPrintSelfTo();
+		if(this.table != null) return innerPrintSelfTo();
+		return node;
 	}
 	
 	/**
@@ -94,23 +91,23 @@ public abstract class TableXmlEncoder {
 	}
 	
 	protected Element printChild(String decoder, String attribute, String name){
-		return print("decoder", appendChild(attribute), table.getTable(name));
+		return print(decoder, appendChild(attribute), table.getTable(name));
 	}
 	
 	protected Element printChild(String decoder, String attribute){
-		return printChild("default", attribute, attribute);
+		return printChild(decoder, attribute, attribute);
 	}
 	
 	protected Element printChild(String attribute){
 		return printChild("default", attribute);
 	}
 	
-	protected Element appendChild(String key){
-		return appendChildTo(node, key);
-	}
-	
 	protected static Element appendChildTo(Element tonode, String key){
 		return tonode.addElement(key);
+	}
+	
+	protected Element appendChild(String key){
+		return appendChildTo(node, key);
 	}
 	
 	protected Element addAttributes(String key, Object obj){
