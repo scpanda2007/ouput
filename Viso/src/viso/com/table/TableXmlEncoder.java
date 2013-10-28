@@ -31,6 +31,7 @@ public abstract class TableXmlEncoder {
 	protected static Map<String, TableXmlEncoder> encoders = new HashMap<String, TableXmlEncoder>();
 	
 	public static void register(String type, TableXmlEncoder encoder){
+		if(encoders.containsKey(type)) throw new IllegalStateException("已经存在一个名为<"+type+">的实例了");
 		encoders.put(type, encoder);
 	}
 	

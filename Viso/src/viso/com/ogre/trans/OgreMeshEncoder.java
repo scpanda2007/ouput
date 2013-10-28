@@ -108,7 +108,8 @@ class GeometryEncoder extends TableXmlEncoder{
 		// TODO Auto-generated method stub
 		defaultPrintAttributes();
 		
-		
+		printChild("VertexBuffer0Encoder", "vertexbuffer");
+		printChild("VertexBuffer1Encoder", "vertexbuffer");
 		
 		return node;
 	}
@@ -151,7 +152,9 @@ class SubMeshEncoder extends TableXmlEncoder{
 	@Override
 	protected Element innerPrintSelfTo() {
 		// TODO Auto-generated method stub
-		
+		printChild("FacesEncoder", "faces");
+		printChild("GeometryEncoder", "geometry");
+		printChild("BoneAssignmentsEncoder", "boneassignments");
 		return node;
 	}
 	
@@ -188,7 +191,7 @@ public class OgreMeshEncoder extends TableXmlEncoder{
 		register("GeometryEncoder", new GeometryEncoder());
 		register("VertexBuffer1Encoder", new VertexBuffer1Encoder());
 		register("VertexBuffer0Encoder", new VertexBuffer0Encoder());
-		register("BoneAssignmentsEncoder", new GeometryEncoder());
+		register("BoneAssignmentsEncoder", new BoneAssignmentsEncoder());
 		OgreMeshEncoderInitOnce = true;
 	}
 	
