@@ -109,9 +109,6 @@ class DnMeshBuilder extends DecodeItem {
 		DnFloatVectorBuilder vectorFloat2Decoder = new DnFloatVectorBuilder(2);
 		DnIntVectorBuilder vectorInt4_2Decoder = new DnIntVectorBuilder(4, 2);
 		
-		DecodeItem decoder = vectorFloat3Decoder;
-		
-		
 		Table vertexDataArray = meshInfo.MapAndCreateArray("vertexIndexArray");
 		for(int i=0;i<vertextCount;i++){
 			vertexDataArray.PutObject(vectorFloat3Decoder.BuildTable(file));

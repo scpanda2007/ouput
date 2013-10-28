@@ -10,7 +10,15 @@ import java.util.Map;
 public class Table {
 	
 	private Map<String,Object> dictionary;
+	public final Map<String, Object> distinctElements(){
+		return dictionary;
+	}
+	
 	private List<Object> array;
+	public final List<Object> repeatElements(){
+		return array;
+	}
+	
 	private String name;
 	
 	private Table(String name){ this.name = name; }
@@ -59,6 +67,12 @@ public class Table {
 		for(int i=0;i<repeat;i++){
 			table.PutObject(decoder.BuildTable(file));
 		}
+		return table;
+	}
+	
+	public Table MapAndCreateTable(String name){
+		Table table = Table.createTable(name);
+		dictionary.put(name, table);
 		return table;
 	}
 	
