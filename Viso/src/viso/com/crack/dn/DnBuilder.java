@@ -6,42 +6,6 @@ import java.io.RandomAccessFile;
 import viso.com.table.DecodeItem;
 import viso.com.table.Table;
 
-class DnIntVectorBuilder extends DecodeItem {
-	
-	private int number = 0;
-	private int intType = 0;
-	public DnIntVectorBuilder(int number, int intType){
-		this.number = number;
-		this.intType = intType;
-	}
-	
-	@Override
-	public Table innterBuildTable(RandomAccessFile file) throws IOException{
-		// TODO Auto-generated method stub
-		Table vector = Table.createArray("Unkown Name");
-		for(int i=0;i<number;i++)
-			vector.PutObject(new Integer(GetInt(intType)));
-		return vector;
-	}
-	
-}
-
-class DnFloatVectorBuilder extends DecodeItem {
-	
-	private int number = 0;
-	public DnFloatVectorBuilder(int number){this.number = number;}
-	
-	@Override
-	public Table innterBuildTable(RandomAccessFile file) throws IOException{
-		// TODO Auto-generated method stub
-		Table vector = Table.createArray("Unkown Name");
-		for(int i=0;i<number;i++)
-			vector.PutObject(new Float(GetFloat(4)));
-		return vector;
-	}
-	
-}
-
 class DnHeaderBuilder extends DecodeItem {
 
 	@Override
@@ -76,7 +40,7 @@ class DnBoneBuilder extends DecodeItem {
 		boneInfo.MapTable("M2", vectorFloat4.BuildTable(file));
 		boneInfo.MapTable("M3", vectorFloat4.BuildTable(file));
 		boneInfo.MapTable("M4", vectorFloat4.BuildTable(file));
-		return null;
+		return boneInfo;
 	}
 	
 }
@@ -100,37 +64,18 @@ class DnMeshBuilder extends DecodeItem {
 		
 		file.skipBytes(512 - 16);
 		
-		Table vertexIndexArray = meshInfo.MapAndCreateArray("indexArray");
-		for(int i=0; i<indexCount; i+=1){
-			vertexIndexArray.PutObject(GetInt(2));
-		}
+		meshInfo.MapTable("indexArray", (new DnIntVectorBuilder(indexCount, 2)).BuildTable(file));
+		MapAndBuildArray(meshInfo, "vertexIndexArray", vertextCount, new DnFloatVectorBuilder(3));
+		MapAndBuildArray(meshInfo, "normalDataArray", vertextCount, new DnFloatVectorBuilder(3));
+		MapAndBuildArray(meshInfo, "UVDataArray", vertextCount, new DnFloatVectorBuilder(2));
+		MapAndBuildArray(meshInfo, "boneIndexArray", vertextCount, new DnIntVectorBuilder(4, 2));
+		MapAndBuildArray(meshInfo, "boneWeightArray", vertextCount, new DnFloatVectorBuilder(4));
 		
-		DnFloatVectorBuilder vectorFloat3Decoder = new DnFloatVectorBuilder(3);
-		DnFloatVectorBuilder vectorFloat2Decoder = new DnFloatVectorBuilder(2);
-		DnIntVectorBuilder vectorInt4_2Decoder = new DnIntVectorBuilder(4, 2);
-		
-		Table vertexDataArray = meshInfo.MapAndCreateArray("vertexIndexArray");
-		for(int i=0;i<vertextCount;i++){
-			vertexDataArray.PutObject(vectorFloat3Decoder.BuildTable(file));
-		}
-		
-		Table normalDataArray = meshInfo.MapAndCreateArray("normalDataArray");
-		for(int i=0;i<vertextCount;i++){
-			normalDataArray.PutObject(vectorFloat3Decoder.BuildTable(file));
-		}
-		
-		Table uvDataArray = meshInfo.MapAndCreateArray("UVDataArray");
-		for(int i=0;i<vertextCount;i++){
-			uvDataArray.PutObject(vectorFloat2Decoder.BuildTable(file));
-		}
-		
-		Table boneIndexArray = meshInfo.MapAndCreateArray("boneIndexArray");
-		for(int i=0;i<vertextCount;i++){
-			boneIndexArray.PutObject(vectorInt4_2Decoder.BuildTable(file));
-		}
+		final int boneCount = GetInt(4);
+		meshInfo.MapTable("boneNameArray", (new DnStringVectorBuilder(boneCount, 256)).BuildTable(file));
 		
 		// TODO Auto-generated method stub
-		return null;
+		return meshInfo;
 	}
 	
 }
@@ -143,12 +88,11 @@ public class DnBuilder extends DecodeItem {
 		Table dnmesh = Table.createTable("DnMesh");
 		dnmesh.MapTable("header", (new DnHeaderBuilder()).BuildTable(file));
 		// bone info
-		DnBoneBuilder dnBoneBuilder = new DnBoneBuilder();
-		Table boneInfoArray = Table.createArray("boneInfoArray");
-		final int boneCount = dnmesh.getTable("header").getInt("boneCount");
-		for(int i=0;i<boneCount;i++){
-			boneInfoArray.PutObject(dnBoneBuilder.BuildTable(file));
-		}
+		MapAndBuildArray(dnmesh, "boneInfoArray", 
+				dnmesh.getTable("header").getInt("boneCount"), new DnBoneBuilder());
+		// mesh info
+		MapAndBuildArray(dnmesh, "meshInfoArray", 
+				dnmesh.getTable("header").getInt("meshCount"), new DnMeshBuilder());
 		return dnmesh;
 	}
 

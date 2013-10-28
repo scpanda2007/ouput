@@ -17,12 +17,14 @@ public class TableDecoder {
 	private byte[] readbuffer3 = new byte[3];
 	private byte[] readbuffer4 = new byte[4];
 	private byte[] buffer32 = new byte[4];
-	private byte[] buffer512 = new byte[512];
+	private byte[] buffer16 = new byte[4];
+	private byte[] buffer1024 = new byte[1024];
 	private ByteBuffer buffer32Decoder = ByteBuffer.wrap(buffer32);
+	private ByteBuffer buffer16Decoder = ByteBuffer.wrap(buffer16);
 	
 	public String DecodeString(RandomAccessFile file, int number) throws IOException{
-		file.read(buffer512, 0, number);
-		String string = new String(buffer512);
+		file.read(buffer1024, 0, number);
+		String string = new String(buffer1024);
 		return string.indexOf(0)==-1 ? string : string.substring(0, string.indexOf(0));
 	}
 	
@@ -34,6 +36,11 @@ public class TableDecoder {
 	public int DecodeInt(RandomAccessFile file, int number) throws IOException{
 		ReadToBuffer32(file, number);
 		return buffer32Decoder.getInt();
+	}
+	
+	public short DecodeShort(RandomAccessFile file, int number) throws IOException{
+		ReadToBuffer16(file, number);
+		return buffer16Decoder.getShort();
 	}
 
 	public void ReadToBuffer32(RandomAccessFile file, int number) throws IOException{
@@ -49,8 +56,23 @@ public class TableDecoder {
 		CopyToBuffer32(number, read);
 	}
 	
+	public void ReadToBuffer16(RandomAccessFile file, int number) throws IOException{
+		byte[] read = null;
+		switch(number){
+		case 1:read = readbuffer1;break;
+		case 2:read = readbuffer2;break;
+		default:throw new IllegalStateException();
+		}
+		file.readFully(read);
+		CopyToBuffer16(number, read);
+	}
+	
 	public void CopyToBuffer32(int number, byte[] source){
 		CopyToBuffer32(number, BigEndian, source);
+	}
+	
+	public void CopyToBuffer16(int number, byte[] source){
+		CopyToBuffer16(number, BigEndian, source);
 	}
 	
 	public byte getByteOfBuffer32(int i){
@@ -68,6 +90,19 @@ public class TableDecoder {
 		}else{
 			for(int i=0;i<number;i++){
 				buffer32[3-i] = source[i];
+			}
+		}
+	}
+	
+	public void CopyToBuffer16(int number, boolean reverse, byte[] source){
+		buffer16Decoder.rewind();
+		buffer16[0] = 0;
+		buffer16[1] = 0;
+		if(!reverse){
+			System.arraycopy(buffer16, 0, source, 0, number);
+		}else{
+			for(int i=0;i<number;i++){
+				buffer16[1-i] = source[i];
 			}
 		}
 	}

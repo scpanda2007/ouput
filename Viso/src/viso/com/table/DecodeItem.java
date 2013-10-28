@@ -42,8 +42,20 @@ public abstract class DecodeItem {
 		return getDecoder().DecodeFloat(file, 4);
 	}
 	
+	protected int GetShort(int number) throws IOException{
+		return getDecoder().DecodeShort(file, 2);
+	}
+	
 	protected float GetFloat(int number) throws IOException{
 		return getDecoder().DecodeFloat(file, number);
+	}
+	
+	protected Table MapAndBuildArray(Table to, String name, int repeat, DecodeItem decoder) throws IOException{
+		Table table = to.MapAndCreateArray(name);
+		for(int i=0;i<repeat;i++){
+			table.PutObject(decoder.BuildTable(file));
+		}
+		return table;
 	}
 	
 	public Table BuildTable(RandomAccessFile file) throws IOException{
