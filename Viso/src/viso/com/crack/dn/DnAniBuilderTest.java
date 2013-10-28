@@ -15,18 +15,23 @@ public class DnAniBuilderTest extends TestCase {
 		RandomAccessFile file = new RandomAccessFile("D:\\ac_skill1.ani", "r");
 		Table dnMesh = (new DnAniBuilder()).BuildTable(file);
 		file.close();
+		
+		RandomAccessFile output = new RandomAccessFile("D:\\DnAniBuilderTestOut", "rw");
+		
 		PrefixTabStr.clear();
-		System.out.println("Header :: \n"+dnMesh.getTable("header").toString());
+		output.writeBytes("Header :: \n"+dnMesh.getTable("header").toString());
 		PrefixTabStr.clear();
-		System.out.println("animateNameArray :: \n"+dnMesh.getTable("animateNameArray").toString());
+		output.writeBytes("animateNameArray :: \n"+dnMesh.getTable("animateNameArray").toString());
 		PrefixTabStr.clear();
-		System.out.println("animateFrameArray :: \n"+dnMesh.getTable("animateFrameArray").toString());
+		output.writeBytes("animateFrameArray :: \n"+dnMesh.getTable("animateFrameArray").toString());
 		
 		List<Object> boneInfoArray = dnMesh.getTable("boneInfoArray").toArray();
 		int i = 0;
 		for(Object obj : boneInfoArray){
-			System.out.println("boneInfo ["+(i++)+"]:: \n"+((Table)obj).toString());
+			output.writeBytes("boneInfo ["+(i++)+"]:: \n"+((Table)obj).toString());
 		}
+		
+		output.close();
 	}
 
 }
