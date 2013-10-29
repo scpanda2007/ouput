@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import viso.com.table.Table;
-import viso.com.table.Table.PrefixTabStr;
+//import viso.com.table.Table.PrefixTabStr;
 
 import junit.framework.TestCase;
 
@@ -30,7 +30,7 @@ public class DnAniBuilderTest extends TestCase {
 //		output.writeBytes("animateFrameArray :: \n"+dnMesh.getTable("animateFrameArray").toString());
 //		
 		List<Object> boneInfoArray = dnMesh.getTable("boneInfoArray").toArray();
-		int i = 0;
+//		int i = 0;
 		
 		Map<String, Set<String>> parentChildren = new HashMap<String, Set<String>>(); 
 		for(Object obj : boneInfoArray){
