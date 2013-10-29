@@ -12,11 +12,11 @@ class RotationEncoder extends TableXmlEncoder{
 	@Override
 	protected Element innerPrintSelfTo() {
 		// TODO Auto-generated method stub
-		addAttributes("angle", table.getInt("angle"));
+		addAttributes("angle", table.getFloat("angle"));
 		Element axis = appendChild("axis");
-		addArributesTo(axis, "x", table.getInt("x"));
-		addArributesTo(axis, "y", table.getInt("y"));
-		addArributesTo(axis, "z", table.getInt("z"));
+		addArributesTo(axis, "x", table.getFloat("x"));
+		addArributesTo(axis, "y", table.getFloat("y"));
+		addArributesTo(axis, "z", table.getFloat("z"));
 		return node;
 	}
 	

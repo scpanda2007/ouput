@@ -1,13 +1,27 @@
 package viso.com.ogre.trans;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import viso.com.table.Table;
 
 public class OgreMeshFromDn{
 	
 	public static Table convertTable(final Table ogrMesh, final Table dnmesh){
+		
+		Map<String, Integer> boneindexMap = new HashMap<String, Integer>();
+		List<Object> boneArray = dnmesh.getTable("boneInfoArray").repeatElements();
+		{
+			for(int index=0;index<boneArray.size();index++){
+				Table boneInfo = (Table)boneArray.get(index);
+				boneindexMap.put(boneInfo.getString("boneName"), index);
+			}
+		}
+		
 		Table submeshes = ogrMesh.MapAndCreateTable("submeshes");
+		Table submeshnamesArray = ogrMesh.MapAndCreateArray("submeshnames");
+		
 		Table submeshArray = submeshes.MapAndCreateArray("submeshArray");
 		Table dnmeshArray = dnmesh.getTable("meshInfoArray");
 		List<Object> dnmesh_array = dnmeshArray.repeatElements();
@@ -20,6 +34,7 @@ public class OgreMeshFromDn{
 			submeshArray.PutObject(ogrMeshUnit);
 			
 			ogrMeshUnit.MapString("material", dnmeshInfo.getString("meshName"));
+			submeshnamesArray.PutObject(dnmeshInfo.getString("meshName"));
 			ogrMeshUnit.MapString("usesharedvertices", "false");
 			ogrMeshUnit.MapString("use32bitindexes", "false");
 			ogrMeshUnit.MapString("operationtype", "triangle_list");
@@ -81,6 +96,7 @@ public class OgreMeshFromDn{
 			{//นว๗ภ
 				List<Object> dnBoneIndexArray = dnmeshInfo.getTable("boneIndexArray").repeatElements();
 				List<Object> dnBeWeightArray = dnmeshInfo.getTable("boneWeightArray").repeatElements();
+				List<Object> dnBoneNameArray = dnmeshInfo.getTable("boneNameArray").repeatElements();
 				
 				Table boneassignments = ogrMeshUnit.MapAndCreateTable("boneassignments");
 				Table vertexIndexArray = boneassignments.MapAndCreateArray("vertexIndexArray");
@@ -104,7 +120,7 @@ public class OgreMeshFromDn{
 						}
 						
 						vertexIndexArray.PutObject(new Integer(i));
-						boneIndexArray.PutObject(index);
+						boneIndexArray.PutObject(boneindexMap.get((String)dnBoneNameArray.get(index)));
 						weightArray.PutObject(weight);
 					}
 					

@@ -3,7 +3,8 @@ package viso.com.ogre.trans;
 import viso.com.table.Table;
 
 public class OgreSkeletionFile {
-final Table table;
+	
+	final Table table;
 	
 	private OgreSkeletionFile(Table table){
 		this.table = table;

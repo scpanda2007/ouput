@@ -186,6 +186,21 @@ class SubmeshesEncoder extends TableXmlEncoder{
 	
 }
 
+
+class SubmeshnamesEncoder extends TableXmlEncoder{
+
+	@Override
+	protected Element innerPrintSelfTo() {
+		// TODO Auto-generated method stub
+		List<Object> list = table.repeatElements();
+		for(int i=0; i<list.size(); i++){
+			appendChild("submeshname").addAttribute("name", list.get(i).toString()).addAttribute("index", ""+i);
+		}
+		return node;
+	}
+	
+}
+
 public class OgreMeshEncoder extends TableXmlEncoder{
 
 	private static boolean OgreMeshEncoderInitOnce = false;
@@ -207,6 +222,7 @@ public class OgreMeshEncoder extends TableXmlEncoder{
 		register("VertexBuffer1Encoder", new VertexBuffer1Encoder());
 		register("VertexBuffer0Encoder", new VertexBuffer0Encoder());
 		register("BoneAssignmentsEncoder", new BoneAssignmentsEncoder());
+		register("SubmeshnamesEncoder", new SubmeshnamesEncoder());
 		OgreMeshEncoderInitOnce = true;
 	}
 	
@@ -215,6 +231,7 @@ public class OgreMeshEncoder extends TableXmlEncoder{
 		// TODO Auto-generated method stub
 		printChild("SubmeshesEncoder", "submeshes");
 		printChild("skeletonlink");
+		printChild("SubmeshnamesEncoder", "submeshnames");
 		return node;
 	}
 	
