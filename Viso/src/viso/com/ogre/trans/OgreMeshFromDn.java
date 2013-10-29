@@ -94,9 +94,18 @@ public class OgreMeshFromDn{
 					weight_table_list = ((Table)dnBeWeightArray.get(i)).repeatElements();
 					
 					for(int j=0;j<4;j++){
+						Integer index = ((Integer)index_table_list.get(j));
+						Float weight = ((Float)weight_table_list.get(j));
+						if(index.intValue()==-1){
+							continue;
+						}
+						if(Math.abs(weight.floatValue()-0.0f) < 0.00000001f){
+							continue;
+						}
+						
 						vertexIndexArray.PutObject(new Integer(i));
-						boneIndexArray.PutObject(index_table_list.get(j));
-						weightArray.PutObject(weight_table_list.get(j));
+						boneIndexArray.PutObject(index);
+						weightArray.PutObject(weight);
 					}
 					
 				}
