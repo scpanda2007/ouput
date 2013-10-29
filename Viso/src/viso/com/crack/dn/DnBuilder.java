@@ -64,8 +64,8 @@ class DnMeshBuilder extends DecodeItem {
 		
 		file.skipBytes(512 - 16);
 		
-		meshInfo.MapTable("indexArray", (new DnIntVectorBuilder(indexCount, 2)).BuildTable(file));
-		MapAndBuildArray(meshInfo, "vertexIndexArray", vertextCount, new DnFloatVectorBuilder(3));
+		meshInfo.MapTable("vertexindex", (new DnIntVectorBuilder(indexCount, 2)).BuildTable(file));
+		MapAndBuildArray(meshInfo, "vertexDataArray", vertextCount, new DnFloatVectorBuilder(3));
 		MapAndBuildArray(meshInfo, "normalDataArray", vertextCount, new DnFloatVectorBuilder(3));
 		MapAndBuildArray(meshInfo, "UVDataArray", vertextCount, new DnFloatVectorBuilder(2));
 		MapAndBuildArray(meshInfo, "boneIndexArray", vertextCount, new DnIntVectorBuilder(4, 2));

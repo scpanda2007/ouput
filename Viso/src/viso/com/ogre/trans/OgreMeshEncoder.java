@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.dom4j.Element;
 
+import viso.com.table.Table;
 import viso.com.table.TableXmlEncoder;
 
 class BoneAssignmentsEncoder extends TableXmlEncoder{
@@ -86,8 +87,10 @@ class VertexBuffer1Encoder extends TableXmlEncoder{
 		int count = 0;
 		
 		for(Object obj : vertexArray){
-			if((count%2)==0) vertex = appendChild("vertext");
-			texcoord = appendChildTo(vertex, "texcoord");
+			if((count%2)==0){
+				vertex = appendChild("vertext");
+				texcoord = appendChildTo(vertex, "texcoord");
+			}
 			if((count%2)==0){
 				addArributesTo(texcoord, "u", obj);
 			}else{
@@ -108,8 +111,8 @@ class GeometryEncoder extends TableXmlEncoder{
 		// TODO Auto-generated method stub
 		defaultPrintAttributes();
 		
-		printChild("VertexBuffer0Encoder", "vertexbuffer");
-		printChild("VertexBuffer1Encoder", "vertexbuffer");
+		printChild("VertexBuffer0Encoder", "vertexbuffer", "vertexbuffer0");
+		printChild("VertexBuffer1Encoder", "vertexbuffer", "vertexbuffer1");
 		
 		return node;
 	}
@@ -123,7 +126,7 @@ class FacesEncoder extends TableXmlEncoder{
 		// TODO Auto-generated method stub
 		defaultPrintAttributes();
 		
-		List<Object> list = table.repeatElements();
+		List<Object> list = table.getTable("faceArray").repeatElements();
 		if(list == null) return node;
 		
 		int counter = 0;
@@ -152,6 +155,8 @@ class SubMeshEncoder extends TableXmlEncoder{
 	@Override
 	protected Element innerPrintSelfTo() {
 		// TODO Auto-generated method stub
+		defaultPrintAttributes();
+		
 		printChild("FacesEncoder", "faces");
 		printChild("GeometryEncoder", "geometry");
 		printChild("BoneAssignmentsEncoder", "boneassignments");
@@ -165,7 +170,17 @@ class SubmeshesEncoder extends TableXmlEncoder{
 	@Override
 	protected Element innerPrintSelfTo() {
 		// TODO Auto-generated method stub
-		printChild("SubMeshEncoder", "submesh");
+		defaultPrintAttributes();
+		
+		List<Object> list = table.getTable("submeshArray").repeatElements();
+		for(Object obj : list){
+			if(obj instanceof Table){
+				print("SubMeshEncoder", appendChild("submesh"), (Table)obj);
+				continue;
+			}
+			throw new IllegalStateException(" 参数类型 不是 table");
+//			printChild("SubMeshEncoder", "submesh");
+		}
 		return node;
 	}
 	
