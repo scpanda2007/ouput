@@ -69,6 +69,7 @@ class TrackEncoder extends TableXmlEncoder{
 		Element keyframe = null;
 		Element translate = null;
 		Element rotate = null;
+		Element axis = null;
 		for(int i=0;i<keyframeTimeArray.size();i++){
 			
 			keyframe = appendChildTo(keyframes, "keyframe");
@@ -82,9 +83,11 @@ class TrackEncoder extends TableXmlEncoder{
 			addArributesTo(translate, "z", translateArray.get(i*3+2));
 			
 			addArributesTo(rotate, "rotate", rotateArray.get(i*4));
-			addArributesTo(rotate, "x", rotateArray.get(i*4+1));
-			addArributesTo(rotate, "y", rotateArray.get(i*4+2));
-			addArributesTo(rotate, "z", rotateArray.get(i*4+3));
+			
+			axis = appendChildTo(rotate, "axis");
+			addArributesTo(axis, "x", rotateArray.get(i*4+1));
+			addArributesTo(axis, "y", rotateArray.get(i*4+2));
+			addArributesTo(axis, "z", rotateArray.get(i*4+3));
 		}
 		
 		return node;
