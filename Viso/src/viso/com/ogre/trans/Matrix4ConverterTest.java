@@ -1,18 +1,13 @@
 package viso.com.ogre.trans;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import viso.com.crack.dn.DnBuilder;
 import viso.com.table.Table;
-import viso.com.table.Table.PrefixTabStr;
 import viso.util.math.matrix.Matrix4;
-import viso.util.math.matrix.Quaternion;
-import viso.util.math.matrix.Vector3;
 import junit.framework.TestCase;
 
 public class Matrix4ConverterTest extends TestCase {
@@ -40,10 +35,7 @@ public class Matrix4ConverterTest extends TestCase {
 		List<Double> dList = new ArrayList<Double>();
 		List<Matrix4> matrixs = new ArrayList<Matrix4>();
 		
-		Vector3 position = new Vector3();
-		Vector3 scale = new Vector3();
-		Quaternion orientation = new Quaternion();
-		for(int i=0;i<boneInfoArray.size() && i<3;i++){
+		for(int i=0;i<boneInfoArray.size() && i<1;i++){
 			obj = boneInfoArray.get(i);
 			boneInfo = (Table)obj;
 			dList.clear();
@@ -56,16 +48,25 @@ public class Matrix4ConverterTest extends TestCase {
 			}
 			matrixs.add(Matrix4Converter.buildMatrix4(dList));
 		}
-		output.writeBytes("==== before build  ====\n");
 		
 		for(Matrix4 m4 : matrixs){
 			output.writeBytes("\nm4 is :\n"+m4.toString());
 		}
 		
+		output.writeBytes("==== before build  ====\n");
+		
+		List<OgreBoneMatrix4> boneList = new ArrayList<OgreBoneMatrix4>();
 		for(Matrix4 m4 : matrixs){
-			output.writeBytes(m4.decomposition(position, scale, orientation));
+			OgreBoneMatrix4 bone = new OgreBoneMatrix4(m4);
+			boneList.add(bone);
+			output.writeBytes(bone.buildTable().toString());
 		}
 		output.writeBytes("\n==== after convert  ====");
+		
+		for(OgreBoneMatrix4 bone : boneList){
+			output.writeBytes("\nm4 is :\n"+bone.toMatrix4().toString());
+		}
+		
 		output.close();
 	}
 

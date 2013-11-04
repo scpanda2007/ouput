@@ -44,6 +44,7 @@ class BoneArrayEncoder extends TableXmlEncoder {
 		for(Object obj : boneArray){
 			if(obj instanceof Table){
 				print("BoneEncoder", appendChild("bone"), (Table)obj);
+				continue;
 			}
 			throw new IllegalStateException(" 类型不匹配 ");
 		}
@@ -102,6 +103,7 @@ class AnimationEncoder extends TableXmlEncoder{
 		for(Object obj : trackArray){
 			if(obj instanceof Table){
 				print("TrackEncoder", appendChild("track"), (Table)obj);
+				continue;
 			}
 			throw new IllegalStateException(" 类型不匹配 ");
 		}
@@ -120,6 +122,7 @@ class AnimationArrayEncoder extends TableXmlEncoder{
 		for(Object obj : animationArray){
 			if(obj instanceof Table){
 				print("AnimationEncoder", appendChild("animation"), (Table)obj);
+				continue;
 			}
 			throw new IllegalStateException(" 类型不匹配 ");
 		}
@@ -138,6 +141,7 @@ class BoneHierarchyEncoder extends TableXmlEncoder {
 		for(Object obj : boneparentArray){
 			if(obj instanceof Table){
 				print("default", appendChild("boneparent"), (Table)obj);
+				continue;
 			}
 			throw new IllegalStateException(" 类型不匹配 ");
 		}
@@ -158,7 +162,7 @@ public class OgreSkeletonEncoder extends TableXmlEncoder {
 		register("BoneArrayEncoder", new BoneArrayEncoder());
 		register("BoneEncoder", new BoneEncoder());
 		
-		register("RotationEncoder", new BoneEncoder());
+		register("RotationEncoder", new RotationEncoder());
 		register("OgreSkeletonEncoder", new OgreSkeletonEncoder());
 		register("BoneHierarchyEncoder", new BoneHierarchyEncoder());
 		

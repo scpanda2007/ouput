@@ -2,9 +2,16 @@ package viso.util.math.matrix;
 
 public class Vector {
 	
-	public Double m[];
+	public double m[];
 	public Vector(int vectNum){
-		m = new Double[vectNum];
+		m = new double[vectNum];
+	}
+	
+	public Vector(Vector another){
+		m = new double[another.m.length];
+		for(int i=0;i<m.length;i++){
+			m[i] = another.m[i];
+		}
 	}
 	
 	public void setValue(int col, Object obj){
@@ -14,7 +21,30 @@ public class Vector {
 		if(col<0 || col>=m.length){
 			throw new IllegalStateException(" Ë÷ÒýÔ½½ç ");
 		}
-		m[col] = new Double((Double)obj); 
+		m[col] = (Double)obj; 
+	}
+	
+	public void selfMul(double factor){
+		for(int i=0;i<m.length;i++){
+			m[i] *= factor;
+		}
+	}
+	
+	public void selfAdd(double factor){
+		for(int i=0;i<m.length;i++){
+			m[i] += factor;
+		}
+	}
+	
+	public void selfAdd(Vector another){
+		assert this.m.length == another.m.length;
+		for(int i=0;i<m.length;i++){
+			m[i] += another.m[i];
+		}
+	}
+	
+	public void selfDel(double factor){
+		selfAdd(0.0d-factor);
 	}
 	
 	public String toString(){
@@ -27,4 +57,5 @@ public class Vector {
 		buffer.append("]");
 		return buffer.toString();
 	}
+	
 }

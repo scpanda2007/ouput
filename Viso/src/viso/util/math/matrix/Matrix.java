@@ -2,10 +2,10 @@ package viso.util.math.matrix;
 
 public class Matrix {
 	
-	public Double m[][];
+	public double m[][];
 	
 	public Matrix(int rowNum, int colNum){
-		m = new Double[rowNum][colNum];
+		m = new double[rowNum][colNum];
 	}
 	
 	protected boolean isAffine(){

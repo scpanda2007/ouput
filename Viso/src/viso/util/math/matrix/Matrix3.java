@@ -1,5 +1,7 @@
 package viso.util.math.matrix;
 
+import viso.util.math.method.Func;
+
 public class Matrix3 extends Matrix {
 
 	public Matrix3() {
@@ -45,7 +47,7 @@ public class Matrix3 extends Matrix {
 				* m[2][0] ;
 		//TODO: need compare 
 		if (!fInvLength.equals(0.0d)) {
-			fInvLength = Math.sqrt(fInvLength);
+			fInvLength = Func.invSqrt(fInvLength);
 		}
 
 		kQ.m[0][0] = m[0][0] * fInvLength ;
@@ -57,12 +59,12 @@ public class Matrix3 extends Matrix {
 		kQ.m[0][1] = m[0][1] - fDot * kQ.m[0][0];
 		kQ.m[1][1] = m[1][1] - fDot * kQ.m[1][0];
 		kQ.m[2][1] = m[2][1] - fDot * kQ.m[2][0];
-		fInvLength = new Double( kQ.m[0][1] * kQ.m[0][1] + kQ.m[1][1] * kQ.m[1][1]
-				+ kQ.m[2][1] * kQ.m[2][1] );
+		fInvLength = kQ.m[0][1] * kQ.m[0][1] + kQ.m[1][1] * kQ.m[1][1]
+				+ kQ.m[2][1] * kQ.m[2][1] ;
 
 		//TODO: need compare 
 		if (!fInvLength.equals(0.0d)) {
-			fInvLength = Math.sqrt(fInvLength);
+			fInvLength = Func.invSqrt(fInvLength);
 		}
 
 		kQ.m[0][1] *= fInvLength;
@@ -84,7 +86,7 @@ public class Matrix3 extends Matrix {
 
 		//TODO: need compare 
 		if (!fInvLength.equals(0.0d)) {
-			fInvLength = Math.sqrt(fInvLength);
+			fInvLength = Func.invSqrt(fInvLength);
 		}
 
 		kQ.m[0][2] *= fInvLength;
@@ -103,7 +105,7 @@ public class Matrix3 extends Matrix {
 				for (int iCol = 0; iCol < 3; iCol++)
 					kQ.m[iRow][iCol] = -kQ.m[iRow][iCol];
 		}
-
+		
 		// build "right" matrix R
 		Matrix3 kR = new Matrix3();
 
