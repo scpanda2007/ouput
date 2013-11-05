@@ -103,9 +103,10 @@ class AnimationEncoder extends TableXmlEncoder{
 		defaultPrintAttributes();
 		Table tracks = table.getTable("trackArray");
 		List<Object> trackArray = tracks.repeatElements();
+		Element tracksNode = appendChild("tracks");
 		for(Object obj : trackArray){
 			if(obj instanceof Table){
-				print("TrackEncoder", appendChild("track"), (Table)obj);
+				print("TrackEncoder", appendChildTo(tracksNode,"track"), (Table)obj);
 				continue;
 			}
 			throw new IllegalStateException(" ¿‡–Õ≤ª∆•≈‰ ");
@@ -178,6 +179,7 @@ public class OgreSkeletonEncoder extends TableXmlEncoder {
 	@Override
 	protected Element innerPrintSelfTo() {
 		// TODO Auto-generated method stub
+		defaultPrintAttributes();
 		print("BoneArrayEncoder", appendChild("bones"), table.getTable("boneArray"));
 		print("BoneHierarchyEncoder", appendChild("bonehierarchy"), table.getTable("boneParentArray"));
 		print("AnimationArrayEncoder", appendChild("animations"), table.getTable("animationArray"));

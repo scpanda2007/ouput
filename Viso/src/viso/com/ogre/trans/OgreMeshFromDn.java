@@ -42,7 +42,7 @@ public class OgreMeshFromDn{
 			{//face
 				List<Object> dnIndexArray = dnmeshInfo.getTable("vertexindex").repeatElements();
 				Table faces = ogrMeshUnit.MapAndCreateTable("faces");
-				faces.MapInt("count", dnIndexArray.size());
+				faces.MapInt("count", dnIndexArray.size()/3);
 				
 				Table faceArray = faces.MapAndCreateArray("faceArray");
 				for(int i=0;i<dnIndexArray.size();i++){

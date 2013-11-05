@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import viso.com.table.Table;
+import viso.util.math.method.Func;
 
 public class OgreSkeletonFromDn {
 	public static Table convertTable(final Table ogreSkeleton,
@@ -68,11 +69,18 @@ public class OgreSkeletonFromDn {
 				.repeatElements();
 		List<Object> animateNameArray = animesh.getTable("animateNameArray")
 				.repeatElements();
+		List<Object> animateFrameArray = animesh.getTable("animateFrameArray").repeatElements();
 		Table aniArray = ogreSkeleton.MapAndCreateArray("animationArray");
 		// List<Object> animateFrameArray =
 		// animesh.getTable("animateFrameArray")
 		// .repeatElements();
 
+		double rw;
+		double rx;
+		double ry;
+		double rz;
+		double rn;
+		
 		final int version = animesh.getTable("header").getInt("version");
 
 		{
@@ -83,6 +91,8 @@ public class OgreSkeletonFromDn {
 				Table animation = Table.createTable("animation");
 				aniArray.PutObject(animation);
 				animation.MapString("name", (String) animateNameArray.get(i));
+				animation.MapFloat("Length", (1.0f/24)*((Integer) animateFrameArray.get(i)-1));
+				
 				Table trackArray = animation.MapAndCreateArray("trackArray");
 
 				for (int j = 0; j < boneInfoArray.size(); j++) {//TODO: just test
@@ -147,11 +157,11 @@ public class OgreSkeletonFromDn {
 						if (transformFrameList.size() == 2){
 							tick = (Integer) frameList.get(l);
 							translateArray.PutObject(
-									((Float) transformList.get(0)+(Float)transformList.get(3))*tick/lastFrame);
+									(Float) transformList.get(0) + ((Float)transformList.get(3) - (Float) transformList.get(0))*tick/lastFrame);
 							translateArray.PutObject(
-									((Float) transformList.get(1)+(Float)transformList.get(4))*tick/lastFrame);
+									(Float) transformList.get(1) + ((Float)transformList.get(4) - (Float) transformList.get(1))*tick/lastFrame);
 							translateArray.PutObject(
-									((Float) transformList.get(2)+(Float)transformList.get(5))*tick/lastFrame);
+									(Float) transformList.get(2) + ((Float)transformList.get(5) - (Float) transformList.get(2))*tick/lastFrame);
 						}else if (transformFrameList.size() == 0){
 							translateArray.PutObject(new Float(
 									(Float) transformation.get(0)));
@@ -160,9 +170,6 @@ public class OgreSkeletonFromDn {
 							translateArray.PutObject(new Float(
 									(Float) transformation.get(2)));
 						}else if (transformFrameList.size() > 0) {
-							if(transformList.size() <= (l*3+2)){
-								System.out.println("XXX"+boneInfoX.getString("boneName"));
-							}
 							translateArray.PutObject(new Float(
 									(Float) transformList.get(l * 3 + 0)));
 							translateArray.PutObject(new Float(
@@ -173,14 +180,22 @@ public class OgreSkeletonFromDn {
 
 						if (rotationFrameList.size() > 0) {
 							if (version == 11) {
-								rotateArray.PutObject(new Integer(
-										(Integer) rotationList.get(l * 4 + 0)));
-								rotateArray.PutObject(new Integer(
-										(Integer) rotationList.get(l * 4 + 1)));
-								rotateArray.PutObject(new Integer(
-										(Integer) rotationList.get(l * 4 + 2)));
-								rotateArray.PutObject(new Integer(
-										(Integer) rotationList.get(l * 4 + 3)));
+								rw = (Integer) rotationList.get(l * 4 + 0);
+								rx = (Integer) rotationList.get(l * 4 + 1);
+								ry = (Integer) rotationList.get(l * 4 + 2);
+								rz = (Integer) rotationList.get(l * 4 + 3);
+								rn = rw*rw + rx*rx + ry*ry + rz*rz;
+								if(rn > 0){
+									rn = Func.invSqrt(rn);
+									rw = rw * rn;
+									rx = rx * rn;
+									ry = ry * rn;
+									rz = rz * rn;
+								}
+								rotateArray.PutObject(new Float(rw));
+								rotateArray.PutObject(new Float(rx));
+								rotateArray.PutObject(new Float(ry));
+								rotateArray.PutObject(new Float(rz));
 							} else {
 								rotateArray.PutObject(new Float(
 										(Float) rotationList.get(l * 4 + 0)));
