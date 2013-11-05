@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import viso.app.Delivery;
 import viso.framework.service.net.ConnectionHandler;
 import viso.framework.service.net.Transport;
 import viso.framework.service.net.TransportDescriptor;
@@ -287,6 +288,12 @@ public class TcpTransport implements Transport {
 			// TODO Auto-generated method stub
 
 		}
+	}
+
+	@Override
+	public Delivery getDelivery() {
+		// TODO Auto-generated method stub
+		return Delivery.RELIABLE;
 	}
 
 }

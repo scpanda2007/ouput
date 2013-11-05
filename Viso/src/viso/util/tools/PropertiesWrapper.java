@@ -1,6 +1,10 @@
 package viso.util.tools;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
+
+import viso.framework.service.net.Transport;
 
 public class PropertiesWrapper {
 	
@@ -26,9 +30,28 @@ public class PropertiesWrapper {
 		return Integer.valueOf(properties.getProperty(arg0, ""+arg1));
 	}
 	
+	public long getLongProperty(String arg0, long arg1){
+		return Long.valueOf(properties.getProperty(arg0, ""+arg1));
+	}
+	
 	public int getIntProperty(String arg0, int arg1, int min, int max){
 		int value = getIntProperty(arg0, arg1);
 		if(value >= min && value<=max) return value;
 		return arg1;
+	}
+
+	public long getLongProperty(String arg0,
+			long default_, long min, long max) {
+		long value = getLongProperty(arg0, default_);
+		if(value >= min && value<=max) return value;
+		return default_;
+	}
+
+	public <T extends Object> T getClassInstanceProperty(String arg0,
+			String default_, Class<T> class1, Class<?>[] classes,
+			Object ...arg2) throws Exception {
+		// TODO Auto-generated method stub
+		Object obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
+		return (T)obj;
 	}
 }
