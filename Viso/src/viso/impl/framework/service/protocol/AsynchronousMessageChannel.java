@@ -80,8 +80,7 @@ public class AsynchronousMessageChannel implements Channel {
 	 *		space to read the next message
 	 * @throws	ReadPendingException if a read is in progress
 	 */
-	public Future<ByteBuffer> read(CompletionHandler<ByteBuffer, Void> handler)
-			throws InterruptedException, ExecutionException {
+	public Future<ByteBuffer> read(CompletionHandler<ByteBuffer, Void> handler){
 		if (!readPending.compareAndSet(false, true)) {
 			throw new ReadPendingException();
 		}

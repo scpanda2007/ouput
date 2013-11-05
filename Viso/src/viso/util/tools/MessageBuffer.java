@@ -10,8 +10,23 @@ public class MessageBuffer {
 		buffer = ByteBuffer.allocate(size_);
 	}
 	
+	public MessageBuffer(byte[] payload) {
+		// TODO Auto-generated constructor stub
+		buffer = ByteBuffer.wrap(payload);
+	}
+
 	public MessageBuffer putString(String string){
 		buffer.put(string.getBytes());
+		return this;
+	}
+	
+	public MessageBuffer putByte(byte byte_){
+		buffer.put(byte_);
+		return this;
+	}
+	
+	public MessageBuffer putBytes(byte arg0[]){
+		buffer.put(arg0);
 		return this;
 	}
 	
@@ -32,5 +47,35 @@ public class MessageBuffer {
 	public byte[] getBuffer() {
 		// TODO Auto-generated method stub
 		return buffer.array();
+	}
+
+	public byte getByte() {
+		// TODO Auto-generated method stub
+		return buffer.get();
+	}
+
+	public int limit() {
+		// TODO Auto-generated method stub
+		return buffer.limit();
+	}
+
+	public int position() {
+		// TODO Auto-generated method stub
+		return buffer.position();
+	}
+
+	public byte[] getBytes(int i) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getString() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int getShort() {
+		// TODO Auto-generated method stub
+		return buffer.getShort();
 	}
 }

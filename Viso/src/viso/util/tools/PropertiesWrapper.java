@@ -47,7 +47,7 @@ public class PropertiesWrapper {
 		return default_;
 	}
 
-	public <T extends Object> T getClassInstanceProperty(String arg0,
+	public <T> T getClassInstanceProperty(String arg0,
 			String default_, Class<T> class1, Class<?>[] classes,
 			Object ...arg2) throws Exception {
 		// TODO Auto-generated method stub
