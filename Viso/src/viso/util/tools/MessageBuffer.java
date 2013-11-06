@@ -78,4 +78,14 @@ public class MessageBuffer {
 		// TODO Auto-generated method stub
 		return buffer.getShort();
 	}
+
+	public int capacity() {
+		// TODO Auto-generated method stub
+		return buffer.capacity();
+	}
+
+	public void putShort(int arg0) {
+		// TODO Auto-generated method stub
+		buffer.putShort((short)arg0);
+	}
 }
