@@ -1,5 +1,6 @@
 package viso.test.framework.service.net;
 
+import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 
 import viso.framework.service.net.ConnectionHandler;
@@ -30,7 +31,7 @@ public class TestTcpTransport extends TestCase {
 		transport = new TcpTransport(TestProperties.getProperties());
 		transport.accept(new TestConnectionHandler());
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -44,7 +45,7 @@ public class TestTcpTransport extends TestCase {
 		public void newConnection(AsynchronousByteChannel channel)
 				throws Exception {
 			// TODO Auto-generated method stub
-			
+			channel.write(ByteBuffer.wrap("hello this is TestConnectionHandler.".getBytes()));
 		}
 
 		@Override

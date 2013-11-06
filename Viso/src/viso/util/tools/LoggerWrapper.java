@@ -1,6 +1,8 @@
 package viso.util.tools;
 
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,7 +15,13 @@ public class LoggerWrapper{
 	
 	static{
 		try {
-			fileHander = new FileHandler("log/viso%g_%u.log", 1000000, 1);
+			fileHander = new FileHandler("log/viso"+Calendar.getInstance().get(Calendar.YEAR)+
+					"-"+Calendar.getInstance().get(Calendar.MONTH)+
+					"-"+Calendar.getInstance().get(Calendar.DAY_OF_MONTH)+
+					" "+Calendar.getInstance().get(Calendar.HOUR_OF_DAY)+
+					"'"+Calendar.getInstance().get(Calendar.MINUTE)+
+					"'"+Calendar.getInstance().get(Calendar.SECOND)+
+					".log", 1000000, 3);
 			fileHander.setLevel(Level.ALL);
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
@@ -35,7 +43,8 @@ public class LoggerWrapper{
 	}
 	
 	public void log(Level arg0, String arg1, Object ...arg2){
-		String str = String.format(arg1, arg2);
+		String str = MessageFormat.format(arg1, arg2);
+//		System.out.println(str);
 		logger.log(arg0, str);
 	}
 	
