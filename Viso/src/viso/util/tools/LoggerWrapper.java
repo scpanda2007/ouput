@@ -57,7 +57,7 @@ public class LoggerWrapper{
 	}
 	
 	public void logThrow(Level arg0, Throwable arg1, String arg2, Object ...arg3){
-		String str = String.format(arg2, arg3);
+		String str = MessageFormat.format(arg2, arg3);
 		logger.log(arg0, str, arg1);
 	}
 }
