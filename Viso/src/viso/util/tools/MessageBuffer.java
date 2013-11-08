@@ -1,5 +1,6 @@
 package viso.util.tools;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
 public class MessageBuffer {
@@ -16,7 +17,14 @@ public class MessageBuffer {
 	}
 
 	public MessageBuffer putString(String string){
-		buffer.put(string.getBytes());
+		try {
+			byte[] bytes = string.getBytes("UTF-8");
+			buffer.putInt((int)bytes.length);
+			buffer.put(bytes);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return this;
 	}
 	
@@ -66,14 +74,26 @@ public class MessageBuffer {
 
 	public byte[] getBytes(int i) {
 		// TODO Auto-generated method stub
-		return null;
+		byte[] bytes = new byte[i];
+		buffer.get(bytes, buffer.position(), i);
+		return bytes;
 	}
 
 	public String getString() {
 		// TODO Auto-generated method stub
-		return null;
+		try {
+			return new String(getBytes(getInt()),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
+	public int getInt(){
+		return buffer.getInt();
+	}
+	
 	public int getShort() {
 		// TODO Auto-generated method stub
 		return buffer.getShort();
