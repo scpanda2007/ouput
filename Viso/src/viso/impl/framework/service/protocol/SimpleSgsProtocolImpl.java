@@ -916,29 +916,29 @@ public class SimpleSgsProtocolImpl implements SessionProtocol {
 		 * {@code LoginRedirectException}, then a login failed message is sent
 		 * to the client.
 		 */
-		public void completed(Future<SessionProtocolHandler> future) {
+		public void completed(SessionProtocolHandler handler) {
 			try {
-				protocolHandler = future.get();
+				protocolHandler = handler;
 				loginSuccess();
-
-			} catch (ExecutionException e) {
-				// login failed
-				Throwable cause = e.getCause();
-				if (cause instanceof LoginRedirectException) {
-					// redirect
-					LoginRedirectException redirectException = (LoginRedirectException) cause;
-
-					loginRedirect(redirectException.getNodeId(),
-							redirectException.getProtocolDescriptors());
-
-				} else if (cause instanceof LoginFailureException) {
-					loginFailure(cause.getMessage(), cause.getCause());
-				} else {
-					loginFailure(e.getMessage(), e.getCause());
-				}
 			} catch (Exception e) {
 				loginFailure(e.getMessage(), e.getCause());
 			}
+//			catch (ExcuteException e) {
+//				// login failed
+//				Throwable cause = e.getCause();
+//				if (cause instanceof LoginRedirectException) {
+//					// redirect
+//					LoginRedirectException redirectException = (LoginRedirectException) cause;
+//
+//					loginRedirect(redirectException.getNodeId(),
+//							redirectException.getProtocolDescriptors());
+//
+//				} else if (cause instanceof LoginFailureException) {
+//					loginFailure(cause.getMessage(), cause.getCause());
+//				} else {
+//					loginFailure(e.getMessage(), e.getCause());
+//				}
+//			} 
 		}
 	}
 
@@ -954,34 +954,34 @@ public class SimpleSgsProtocolImpl implements SessionProtocol {
 		 * <p>
 		 * This implementation schedules a task to resume reading.
 		 */
-		public void completed(Future<Void> future) {
-			try {
-				future.get();
-			} catch (ExecutionException e) {
-				if (SimpleSgsProtocolImpl.this.logger.isLoggable(Level.FINE)) {
-					logger.logThrow(Level.FINE, e,
-							"Obtaining request result throws ");
-				}
-
-				Throwable cause = e.getCause();
-				if (cause instanceof RequestFailureException) {
-					FailureReason reason = ((RequestFailureException) cause)
-							.getReason();
-					if (reason.equals(FailureReason.DISCONNECT_PENDING)) {
-						// Don't read any more from client because session
-						// is disconnecting.
-						return;
-					}
-					// Assume other failures are transient.
-				}
-
-			} catch (Exception e) {
-				// TBD: Unknown exception: disconnect?
-				if (logger.isLoggable(Level.WARNING)) {
-					logger.logThrow(Level.WARNING, e,
-							"Obtaining request result throws ");
-				}
-			}
+		public void completed(Void result) {
+//			try {
+//				future.get();
+//			} catch (ExecutionException e) {
+//				if (SimpleSgsProtocolImpl.this.logger.isLoggable(Level.FINE)) {
+//					logger.logThrow(Level.FINE, e,
+//							"Obtaining request result throws ");
+//				}
+//
+//				Throwable cause = e.getCause();
+//				if (cause instanceof RequestFailureException) {
+//					FailureReason reason = ((RequestFailureException) cause)
+//							.getReason();
+//					if (reason.equals(FailureReason.DISCONNECT_PENDING)) {
+//						// Don't read any more from client because session
+//						// is disconnecting.
+//						return;
+//					}
+//					// Assume other failures are transient.
+//				}
+//
+//			} catch (Exception e) {
+//				// TBD: Unknown exception: disconnect?
+//				if (logger.isLoggable(Level.WARNING)) {
+//					logger.logThrow(Level.WARNING, e,
+//							"Obtaining request result throws ");
+//				}
+//			}
 			scheduleRead();
 		}
 	}
@@ -998,15 +998,15 @@ public class SimpleSgsProtocolImpl implements SessionProtocol {
 		 * <p>
 		 * This implementation sends a logout success message to the client .
 		 */
-		public void completed(Future<Void> future) {
-			try {
-				future.get();
-			} catch (Exception e) {
-				if (logger.isLoggable(Level.WARNING)) {
-					logger.logThrow(Level.WARNING, e,
-							"Obtaining logout result throws ");
-				}
-			}
+		public void completed(Void result) {
+//			try {
+//				future.get();
+//			} catch (Exception e) {
+//				if (logger.isLoggable(Level.WARNING)) {
+//					logger.logThrow(Level.WARNING, e,
+//							"Obtaining logout result throws ");
+//				}
+//			}
 			logoutSuccess();
 		}
 	}

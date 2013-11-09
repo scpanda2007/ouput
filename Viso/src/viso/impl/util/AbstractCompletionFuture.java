@@ -139,6 +139,14 @@ public abstract class AbstractCompletionFuture<T> implements Future<T> {
 			done = true;
 			lock.notifyAll();
 		}
-		completionHandler.completed(this);
+		try {
+			completionHandler.completed(this.get());
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

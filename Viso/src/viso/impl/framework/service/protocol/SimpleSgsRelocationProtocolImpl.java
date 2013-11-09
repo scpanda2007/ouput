@@ -336,20 +336,20 @@ public class SimpleSgsRelocationProtocolImpl extends SimpleSgsProtocolImpl
 		 * {@code LoginRedirectException}, then a relocate failed message is sent
 		 * to the client.
 		 */
-		public void completed(Future<SessionProtocolHandler> future) {
+		public void completed(SessionProtocolHandler handler) {
 			try {
-				protocolHandler = future.get();
+				protocolHandler = handler;
 				relocateSuccess();
-
-			} catch (ExecutionException e) {
-				// relocate failed
-				Throwable cause = e.getCause();
-				if (cause instanceof LoginRedirectException
-						|| cause instanceof RelocateFailureException) {
-					relocateFailure(cause.getMessage(), cause.getCause());
-				} else {
-					relocateFailure(e.getMessage(), e.getCause());
-				}
+//
+//			} catch (ExecutionException e) {
+//				// relocate failed
+//				Throwable cause = e.getCause();
+//				if (cause instanceof LoginRedirectException
+//						|| cause instanceof RelocateFailureException) {
+//					relocateFailure(cause.getMessage(), cause.getCause());
+//				} else {
+//					relocateFailure(e.getMessage(), e.getCause());
+//				}
 			} catch (Exception e) {
 				relocateFailure(e.getMessage(), e.getCause());
 			}

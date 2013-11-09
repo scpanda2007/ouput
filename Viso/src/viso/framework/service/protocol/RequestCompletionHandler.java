@@ -17,5 +17,5 @@ public interface RequestCompletionHandler<V> {
      * @param	result a future containing the result of the
      * 		request 
      */
-    void completed(Future<V> result);
+    void completed(V result);
 }
