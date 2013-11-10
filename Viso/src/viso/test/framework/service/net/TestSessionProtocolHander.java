@@ -39,7 +39,7 @@ public class TestSessionProtocolHander implements SessionProtocolHandler{
 	public void sessionMessage(ByteBuffer message,
 			RequestCompletionHandler<Void> completionHandler) {
 		// TODO Auto-generated method stub
-		
+		logger.log(Level.INFO, " sessionMessage done");
 	}
 
 }

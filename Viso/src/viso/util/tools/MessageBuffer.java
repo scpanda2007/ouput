@@ -108,4 +108,8 @@ public class MessageBuffer {
 		// TODO Auto-generated method stub
 		buffer.putShort((short)arg0);
 	}
+	
+	public void flip(){
+		buffer.flip();
+	}
 }

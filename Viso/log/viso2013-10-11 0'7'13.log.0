@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="GBK" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2013-11-11T00:07:13</date>
+  <millis>1384099633312</millis>
+  <sequence>0</sequence>
+  <logger>viso.TestProperties</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message> succeed load testproperties file</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:13</date>
+  <millis>1384099633325</millis>
+  <sequence>1</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Creating TcpTransport</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:13</date>
+  <millis>1384099633338</millis>
+  <sequence>2</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>acceptor bound to host: 127.0.0.1 port:62964</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:13</date>
+  <millis>1384099633338</millis>
+  <sequence>3</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Created TcpTransport with properties:
+  viso.impl.framework.service.net.acceptor.backlog=0
+  viso.impl.framework.service.net.listen.address=127.0.0.1
+  viso.impl.framework.service.net.listen.port=62964</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:13</date>
+  <millis>1384099633341</millis>
+  <sequence>4</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>transport accepting connections</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:18</date>
+  <millis>1384099638403</millis>
+  <sequence>5</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>FINER</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>11</thread>
+  <message>Accepted sun.nio.ch.WindowsAsynchronousSocketChannelImpl[connected local=/127.0.0.1:62964 remote=/127.0.0.1:10276]</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:18</date>
+  <millis>1384099638409</millis>
+  <sequence>6</sequence>
+  <logger>viso.impl.framework.service.protocol.AsynchronousMessageChannel</logger>
+  <level>FINER</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>11</thread>
+  <message>viso.impl.framework.service.protocol.AsynchronousMessageChannel$Reader@148c02f read incomplete -1:0</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:18</date>
+  <millis>1384099638410</millis>
+  <sequence>7</sequence>
+  <logger>viso.impl.framework.service.protocol.AsynchronousMessageChannel</logger>
+  <level>FINER</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>12</thread>
+  <message>viso.impl.framework.service.protocol.AsynchronousMessageChannel$Reader@148c02f read complete 2:38</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:18</date>
+  <millis>1384099638423</millis>
+  <sequence>8</sequence>
+  <logger>viso.impl.framework.service.protocol.SimpleVisoProtocolImpl</logger>
+  <level>FINEST</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>12</thread>
+  <message>completed read protocol:viso.impl.framework.service.protocol.SimpleVisoProtocolImpl@1ed13da message:null</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:18</date>
+  <millis>1384099638423</millis>
+  <sequence>9</sequence>
+  <logger>viso.impl.framework.service.protocol.SimpleVisoProtocolImpl</logger>
+  <level>FINE</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>logThrow</method>
+  <thread>12</thread>
+  <message>Read completion exception viso.impl.framework.service.protocol.AsynchronousMessageChannel@13a8eb1</message>
+  <exception>
+    <message>java.nio.BufferUnderflowException</message>
+    <frame>
+      <class>java.nio.Buffer</class>
+      <method>nextGetIndex</method>
+    </frame>
+    <frame>
+      <class>java.nio.HeapByteBuffer</class>
+      <method>get</method>
+    </frame>
+    <frame>
+      <class>viso.util.tools.MessageBuffer</class>
+      <method>getByte</method>
+      <line>62</line>
+    </frame>
+    <frame>
+      <class>viso.impl.framework.service.protocol.SimpleVisoProtocolImpl$ConnectedReadHandler</class>
+      <method>completed</method>
+      <line>343</line>
+    </frame>
+    <frame>
+      <class>viso.impl.framework.service.protocol.SimpleVisoProtocolImpl$ConnectedReadHandler</class>
+      <method>completed</method>
+      <line>1</line>
+    </frame>
+    <frame>
+      <class>viso.framework.nio.DelegatingCompletionHandler</class>
+      <method>done</method>
+      <line>173</line>
+    </frame>
+    <frame>
+      <class>viso.impl.framework.service.protocol.AsynchronousMessageChannel$Reader</class>
+      <method>done</method>
+      <line>154</line>
+    </frame>
+    <frame>
+      <class>java.util.concurrent.FutureTask</class>
+      <method>finishCompletion</method>
+    </frame>
+    <frame>
+      <class>java.util.concurrent.FutureTask</class>
+      <method>set</method>
+    </frame>
+    <frame>
+      <class>viso.impl.framework.service.protocol.AsynchronousMessageChannel$Reader</class>
+      <method>processBuffer</method>
+      <line>214</line>
+    </frame>
+    <frame>
+      <class>viso.impl.framework.service.protocol.AsynchronousMessageChannel$Reader</class>
+      <method>implCompleted</method>
+      <line>185</line>
+    </frame>
+    <frame>
+      <class>viso.impl.framework.service.protocol.AsynchronousMessageChannel$Reader</class>
+      <method>implCompleted</method>
+      <line>1</line>
+    </frame>
+    <frame>
+      <class>viso.framework.nio.DelegatingCompletionHandler</class>
+      <method>completed</method>
+      <line>61</line>
+    </frame>
+    <frame>
+      <class>sun.nio.ch.Invoker</class>
+      <method>invokeUnchecked</method>
+    </frame>
+    <frame>
+      <class>sun.nio.ch.Invoker$2</class>
+      <method>run</method>
+    </frame>
+    <frame>
+      <class>sun.nio.ch.AsynchronousChannelGroupImpl$1</class>
+      <method>run</method>
+    </frame>
+    <frame>
+      <class>java.util.concurrent.ThreadPoolExecutor</class>
+      <method>runWorker</method>
+    </frame>
+    <frame>
+      <class>java.util.concurrent.ThreadPoolExecutor$Worker</class>
+      <method>run</method>
+    </frame>
+    <frame>
+      <class>java.lang.Thread</class>
+      <method>run</method>
+    </frame>
+  </exception>
+</record>
+<record>
+  <date>2013-11-11T00:07:18</date>
+  <millis>1384099638424</millis>
+  <sequence>10</sequence>
+  <logger>viso.impl.framework.service.protocol.SimpleVisoProtocolImpl</logger>
+  <level>FINEST</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>12</thread>
+  <message>关闭channel, protocol viso.impl.framework.service.protocol.SimpleVisoProtocolImpl@1ed13da</message>
+</record>
+<record>
+  <date>2013-11-11T00:07:43</date>
+  <millis>1384099663343</millis>
+  <sequence>11</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>FINEST</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>transport shutdown</message>
+</record>
+</log>

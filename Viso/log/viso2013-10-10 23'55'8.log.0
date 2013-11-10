@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="GBK" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908423</millis>
+  <sequence>0</sequence>
+  <logger>viso.TestProperties</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message> succeed load testproperties file</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908434</millis>
+  <sequence>1</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Creating TcpTransport</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908448</millis>
+  <sequence>2</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>acceptor bound to host: 127.0.0.1 port:62964</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908448</millis>
+  <sequence>3</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Created TcpTransport with properties:
+  viso.impl.framework.service.net.acceptor.backlog=0
+  viso.impl.framework.service.net.listen.address=127.0.0.1
+  viso.impl.framework.service.net.listen.port=62964</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908448</millis>
+  <sequence>4</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>FINEST</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>transport shutdown</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908449</millis>
+  <sequence>5</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Creating TcpTransport</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908450</millis>
+  <sequence>6</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>acceptor bound to host: 127.0.0.1 port:62964</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908450</millis>
+  <sequence>7</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>Created TcpTransport with properties:
+  viso.impl.framework.service.net.acceptor.backlog=0
+  viso.impl.framework.service.net.listen.address=127.0.0.1
+  viso.impl.framework.service.net.listen.port=62964</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:08</date>
+  <millis>1384098908452</millis>
+  <sequence>8</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>CONFIG</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>transport accepting connections</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:14</date>
+  <millis>1384098914072</millis>
+  <sequence>9</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>FINER</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>12</thread>
+  <message>Accepted sun.nio.ch.WindowsAsynchronousSocketChannelImpl[connected local=/127.0.0.1:62964 remote=/127.0.0.1:10125]</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:19</date>
+  <millis>1384098919454</millis>
+  <sequence>10</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>WARNING</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>forcing async group shutdown</message>
+</record>
+<record>
+  <date>2013-11-10T23:55:19</date>
+  <millis>1384098919456</millis>
+  <sequence>11</sequence>
+  <logger>viso.impl.framework.service.net</logger>
+  <level>FINEST</level>
+  <class>viso.util.tools.LoggerWrapper</class>
+  <method>log</method>
+  <thread>1</thread>
+  <message>transport shutdown</message>
+</record>
+</log>

@@ -12,6 +12,7 @@ import viso.framework.service.protocol.ProtocolAcceptor;
 import viso.framework.service.protocol.ProtocolDescriptor;
 import viso.framework.service.protocol.ProtocolListener;
 import viso.impl.framework.service.net.TcpTransport;
+import viso.test.framework.util.TestProperties;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.PropertiesWrapper;
 
@@ -66,11 +67,11 @@ public class SimpleVisoProtocolAcceptor implements ProtocolAcceptor{
 		}
 
 		/** {@inheritDoc} */
+		@SuppressWarnings("resource")
 		public void newConnection(AsynchronousByteChannel byteChannel)
 				throws Exception {
 			new SimpleVisoProtocolImpl(protocolListener,
-					SimpleVisoProtocolAcceptor.this, byteChannel,
-					1024);
+					SimpleVisoProtocolAcceptor.this, byteChannel, 1024);
 		}
 
 		/** {@inheritDoc} */

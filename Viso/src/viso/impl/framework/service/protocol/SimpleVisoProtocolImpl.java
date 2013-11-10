@@ -10,7 +10,6 @@ import java.nio.channels.ReadPendingException;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,10 +17,8 @@ import viso.app.Delivery;
 import viso.framework.nio.ClosedAsynchronousChannelException;
 import viso.framework.service.protocol.ProtocolListener;
 import viso.framework.service.protocol.RequestCompletionHandler;
-import viso.framework.service.protocol.RequestFailureException;
 import viso.framework.service.protocol.SessionProtocol;
 import viso.framework.service.protocol.SessionProtocolHandler;
-import viso.framework.service.protocol.RequestFailureException.FailureReason;
 import viso.framework.service.protocol.simple.SimpleSgsProtocol;
 import viso.util.tools.HexDumper;
 import viso.util.tools.LoggerWrapper;
@@ -382,7 +379,8 @@ public class SimpleVisoProtocolImpl implements SessionProtocol {
 
 	public void handleMessageReceived(byte opcode, MessageBuffer msg) {
 		// TODO Auto-generated method stub
-		
+		logger.log(Level.CONFIG, "just test , get opcode : "+opcode);
+		logger.log(Level.CONFIG, " get client message :: "+msg.getString());
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 import viso.impl.framework.service.net.TcpTransport;
+import viso.util.tools.MessageBuffer;
 
 public class TestClientUser2 {
 	
@@ -26,8 +27,12 @@ public class TestClientUser2 {
 
 			@Override 
 			public void completed(Void arg0,Void arg1){// TODO Auto-generated method stub
-				System.out.println(" yes i am connected to the server");
-				server.write(ByteBuffer.wrap("hello ... ".getBytes()));
+				MessageBuffer msg = new MessageBuffer(1024);
+				msg.putByte((byte)0);
+				msg.putString(" yes i am connected to the server");
+				int size_ = msg.position();
+				msg.flip();
+				server.write(ByteBuffer.wrap(msg.getBytes(size_)));
 				buf.clear();
 				server.read(buf, null, new ReaderHandler());
 			}
