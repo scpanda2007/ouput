@@ -72,6 +72,10 @@ public class MessageBuffer {
 		// TODO Auto-generated method stub
 		return buffer.position();
 	}
+	
+	public int remaining(){
+		return buffer.remaining();
+	}
 
 	public byte[] getBytes(int i) {
 		// TODO Auto-generated method stub

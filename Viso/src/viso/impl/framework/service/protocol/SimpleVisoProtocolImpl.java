@@ -7,7 +7,9 @@ import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.CompletionHandler;
 import java.nio.channels.ReadPendingException;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -53,6 +55,15 @@ public class SimpleVisoProtocolImpl implements SessionProtocol {
 	
 	/** The completion handler for writing to the I/O channel. */
 	private volatile WriteHandler writeHandler = new ConnectedWriteHandler();
+	
+	/** A lock for {@code loginHandled} and {@code messageQueue} fields. */
+	private final Object lock = new Object();
+	
+	/** Indicates whether the client's login ack has been sent. */
+	private boolean loginHandled = false;
+
+	/** Messages enqueued to be sent after a login ack is sent. */
+	private List<ByteBuffer> messageQueue = new ArrayList<ByteBuffer>();
 	
 	SimpleVisoProtocolImpl(ProtocolListener listener,
 			SimpleVisoProtocolAcceptor acceptor,
@@ -369,6 +380,83 @@ public class SimpleVisoProtocolImpl implements SessionProtocol {
 
 		}
 	}
+	
+	/**
+	 * Writes a message to the underlying connection if login has been handled,
+	 * otherwise enqueues the message to be sent when the login has not yet been
+	 * handled.
+	 * 
+	 * @param buf
+	 *            a buffer containing a complete protocol message
+	 */
+	protected final void write(ByteBuffer buf) {
+		synchronized (lock) {
+			if (!loginHandled) {
+				messageQueue.add(buf);
+			} else {
+				writeNow(buf, false);
+			}
+		}
+	}
+	
+	/**
+	 * Writes a message to the underlying connection.
+	 * 
+	 * @param message
+	 *            a buffer containing a complete protocol message
+	 * @param flush
+	 *            if {@code true}, then set the {@code loginHandled} flag to
+	 *            {@code true} and flush the message queue
+	 */
+	protected final void writeNow(ByteBuffer message, boolean flush) {
+		try {
+			writeHandler.write(message);
+		} catch (RuntimeException e) {
+			if (logger.isLoggable(Level.WARNING)) {
+				logger.logThrow(Level.WARNING, e,
+						"writeNow protocol:{0} throws", this);
+			}
+		}
+
+		if (flush) {
+			synchronized (lock) {
+				loginHandled = true;
+				for (ByteBuffer nextMessage : messageQueue) {
+					try {
+						writeHandler.write(nextMessage);
+					} catch (RuntimeException e) {
+						if (logger.isLoggable(Level.WARNING)) {
+							logger.logThrow(Level.WARNING, e,
+									"writeNow protocol:{0} throws", this);
+						}
+					}
+				}
+				messageQueue.clear();
+			}
+		}
+	}
+	
+	/**
+	 * Writes the specified buffer, satisfying the specified delivery
+	 * requirement.
+	 * 
+	 * <p>
+	 * This implementation writes the buffer reliably, because this protocol
+	 * only supports reliable delivery.
+	 * 
+	 * <p>
+	 * A subclass can override the {@code writeBuffer} method if it supports
+	 * other delivery guarantees and can make use of alternate transports for
+	 * those other delivery requirements.
+	 * 
+	 * @param buf
+	 *            a byte buffer containing a protocol message
+	 * @param delivery
+	 *            a delivery requirement
+	 */
+	protected void writeBuffer(ByteBuffer buf, Delivery delivery) {
+		write(buf);
+	}
 
 	@Override
 	public void channelJoin(String name, BigInteger channelId, Delivery delivery)
@@ -381,6 +469,7 @@ public class SimpleVisoProtocolImpl implements SessionProtocol {
 		// TODO Auto-generated method stub
 		logger.log(Level.CONFIG, "just test , get opcode : "+opcode);
 		logger.log(Level.CONFIG, " get client message :: "+msg.getString());
+		writeNow(ByteBuffer.wrap(" response from server".getBytes()),true);
 	}
 
 	@Override

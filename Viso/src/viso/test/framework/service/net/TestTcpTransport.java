@@ -22,21 +22,34 @@ public class TestTcpTransport extends TestCase {
 		shutDown();
 	}
 
-	public final void testCreate(){
-		transport = new TcpTransport(TestProperties.getProperties());
-		shutDown();
-	}
+//	public final void testCreate(){
+//		transport = new TcpTransport(TestProperties.getProperties());
+//		shutDown();
+//	}
 	
-	public final void testAccept() {
+//	public final void testAccept() {
+//		transport = new TcpTransport(TestProperties.getProperties());
+//		transport.accept(new TestConnectionHandler());
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		shutDown();
+//	}
+	
+	public final void testClose(){
 		transport = new TcpTransport(TestProperties.getProperties());
 		transport.accept(new TestConnectionHandler());
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		shutDown();
+		shutDown();
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	private class TestConnectionHandler implements ConnectionHandler{

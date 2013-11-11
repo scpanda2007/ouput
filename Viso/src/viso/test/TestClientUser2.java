@@ -30,8 +30,8 @@ public class TestClientUser2 {
 				MessageBuffer msg = new MessageBuffer(1024);
 				msg.putByte((byte)0);
 				msg.putString(" yes i am connected to the server");
-				int size_ = msg.position();
 				msg.flip();
+				int size_ = msg.remaining();
 				ByteBuffer buffer = ByteBuffer.allocate(2+size_);
 				buffer.putShort((short)size_).put(msg.getBytes(size_)).flip();
 				server.write(buffer.asReadOnlyBuffer());
