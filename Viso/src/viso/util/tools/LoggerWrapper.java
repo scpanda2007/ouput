@@ -21,7 +21,7 @@ public class LoggerWrapper{
 					" "+Calendar.getInstance().get(Calendar.HOUR_OF_DAY)+
 					"'"+Calendar.getInstance().get(Calendar.MINUTE)+
 					"'"+Calendar.getInstance().get(Calendar.SECOND)+
-					".log", 1000000, 3);
+					".log", 1000000, 1);
 			fileHander.setLevel(Level.ALL);
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block

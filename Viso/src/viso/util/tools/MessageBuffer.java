@@ -2,6 +2,7 @@ package viso.util.tools;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class MessageBuffer {
 	
@@ -75,7 +76,7 @@ public class MessageBuffer {
 	public byte[] getBytes(int i) {
 		// TODO Auto-generated method stub
 		byte[] bytes = new byte[i];
-		buffer.get(bytes, buffer.position(), i);
+		buffer.get(bytes, 0, i);
 		return bytes;
 	}
 

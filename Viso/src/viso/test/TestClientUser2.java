@@ -32,7 +32,9 @@ public class TestClientUser2 {
 				msg.putString(" yes i am connected to the server");
 				int size_ = msg.position();
 				msg.flip();
-				server.write(ByteBuffer.wrap(msg.getBytes(size_)));
+				ByteBuffer buffer = ByteBuffer.allocate(2+size_);
+				buffer.putShort((short)size_).put(msg.getBytes(size_)).flip();
+				server.write(buffer.asReadOnlyBuffer());
 				buf.clear();
 				server.read(buf, null, new ReaderHandler());
 			}
@@ -51,6 +53,12 @@ public class TestClientUser2 {
 		public void completed(Integer arg0, Void arg1) {
 			// TODO Auto-generated method stub
 			System.out.println(" haha i have read from server : "+new String(buf.array(),0,buf.position()));
+			try {
+				server.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		@Override
