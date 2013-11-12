@@ -3,6 +3,7 @@ package viso.test.framework.service.net;
 import java.math.BigInteger;
 
 import viso.framework.auth.Identity;
+import viso.framework.kernel.ComponentRegistry;
 import viso.framework.service.protocol.ProtocolListener;
 import viso.framework.service.protocol.RequestCompletionHandler;
 import viso.framework.service.protocol.SessionProtocol;
@@ -27,7 +28,7 @@ public class TestProtocolAccepter extends TestCase {
 	public final void testClose() {
 		try {
 			acceptor = new SimpleVisoProtocolAcceptor(TestProperties
-					.getProperties());
+					.getProperties(), null, null);
 			acceptor.accept(new ProtocolListener() {
 
 				@Override
