@@ -12,11 +12,12 @@ import viso.framework.service.protocol.ProtocolAcceptor;
 import viso.framework.service.protocol.ProtocolDescriptor;
 import viso.framework.service.protocol.ProtocolListener;
 import viso.impl.framework.service.net.TcpTransport;
+import viso.impl.util.AbstractService;
 import viso.test.framework.util.TestProperties;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.PropertiesWrapper;
 
-public class SimpleVisoProtocolAcceptor implements ProtocolAcceptor{
+public class SimpleVisoProtocolAcceptor extends AbstractService implements ProtocolAcceptor{
 
 	/** The package name. */
 	private static final String PKG_NAME = "viso.framework.service.protocol";
@@ -30,6 +31,7 @@ public class SimpleVisoProtocolAcceptor implements ProtocolAcceptor{
 	private Transport transport;
 	
 	public SimpleVisoProtocolAcceptor(Properties properties) throws Exception{
+		super(properties, null, txnProxy, logger);//TODO: just test
 		PropertiesWrapper wrappedProps = new PropertiesWrapper(properties);
 		try {
 			transport = wrappedProps.getClassInstanceProperty(TRANSPORT_PROPERTY, DEFAULT_TRANSPORT, Transport.class, new Class[]{Properties.class}, properties);
@@ -67,7 +69,6 @@ public class SimpleVisoProtocolAcceptor implements ProtocolAcceptor{
 		}
 
 		/** {@inheritDoc} */
-		@SuppressWarnings("resource")
 		public void newConnection(AsynchronousByteChannel byteChannel)
 				throws Exception {
 			new SimpleVisoProtocolImpl(protocolListener,
@@ -85,6 +86,25 @@ public class SimpleVisoProtocolAcceptor implements ProtocolAcceptor{
 	public void close() {
 		// TODO Auto-generated method stub
 		transport.shutdown();
+	}
+
+	@Override
+	protected void doReady() throws Exception {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void doShutdown() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void handleServiceVersionMismatch(Version oldVersion,
+			Version currentVersion) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
