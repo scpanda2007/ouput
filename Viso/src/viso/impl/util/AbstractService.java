@@ -1,19 +1,14 @@
 package viso.impl.util;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Properties;
 import java.util.logging.Level;
 
 import viso.app.ExceptionRetryStatus;
 import viso.app.ManagedObject;
-import viso.app.NameNotBoundException;
 import viso.framework.auth.Identity;
 import viso.framework.kernel.ComponentRegistry;
-import viso.framework.kernel.TaskQueue;
 import viso.framework.kernel.TaskScheduler;
-import viso.framework.kernel.TransactionScheduler;
-import viso.framework.service.DataService;
 import viso.framework.service.Node;
 import viso.framework.service.Service;
 import viso.framework.service.TransactionProxy;
@@ -83,13 +78,13 @@ public abstract class AbstractService implements Service {
 	protected final LoggerWrapper logger;
 
 	/** The data service. */
-	protected final DataService dataService;
+//	protected final DataService dataService;
 
 	/** The task scheduler. */
 	protected final TaskScheduler taskScheduler;
 
 	/** The transaction scheduler. */
-	protected final TransactionScheduler transactionScheduler;
+//	protected final TransactionScheduler transactionScheduler;
 
 	/** The task owner. */
 	protected final Identity taskOwner;
@@ -186,9 +181,9 @@ public abstract class AbstractService implements Service {
 
 		this.logger = logger;
 		this.taskScheduler = systemRegistry.getComponent(TaskScheduler.class);
-		this.transactionScheduler = systemRegistry
-				.getComponent(TransactionScheduler.class);
-		this.dataService = txnProxy.getService(DataService.class);
+//		this.transactionScheduler = systemRegistry
+//				.getComponent(TransactionScheduler.class);
+//		this.dataService = txnProxy.getService(DataService.class);
 		this.taskOwner = txnProxy.getCurrentOwner();
 
 		setState(State.INITIALIZED);
@@ -331,35 +326,35 @@ public abstract class AbstractService implements Service {
 	 * @throws	IllegalStateException if {@code handleVersionMismatch} is
 	 *		invoked and throws a {@code RuntimeException}
 	 */
-	protected final void checkServiceVersion(String versionKey,
-			int majorVersion, int minorVersion) {
-		if (versionKey == null) {
-			throw new NullPointerException("null versionKey");
-		}
-		Version currentVersion = new Version(majorVersion, minorVersion);
-		try {
-			Version oldVersion = (Version) dataService
-					.getServiceBinding(versionKey);
-
-			if (!currentVersion.equals(oldVersion)) {
-				try {
-					handleServiceVersionMismatch(oldVersion, currentVersion);
-					dataService.removeObject(oldVersion);
-					dataService.setServiceBinding(versionKey, currentVersion);
-				} catch (IllegalStateException e) {
-					throw e;
-				} catch (RuntimeException e) {
-					throw new IllegalStateException(
-							"exception occurred while upgrading from version: "
-									+ oldVersion + ", to: " + currentVersion, e);
-				}
-			}
-
-		} catch (NameNotBoundException e) {
-			// No version exists yet; store first version in data service.
-			dataService.setServiceBinding(versionKey, currentVersion);
-		}
-	}
+//	protected final void checkServiceVersion(String versionKey,
+//			int majorVersion, int minorVersion) {
+//		if (versionKey == null) {
+//			throw new NullPointerException("null versionKey");
+//		}
+//		Version currentVersion = new Version(majorVersion, minorVersion);
+//		try {
+//			Version oldVersion = (Version) dataService
+//					.getServiceBinding(versionKey);
+//
+//			if (!currentVersion.equals(oldVersion)) {
+//				try {
+//					handleServiceVersionMismatch(oldVersion, currentVersion);
+//					dataService.removeObject(oldVersion);
+//					dataService.setServiceBinding(versionKey, currentVersion);
+//				} catch (IllegalStateException e) {
+//					throw e;
+//				} catch (RuntimeException e) {
+//					throw new IllegalStateException(
+//							"exception occurred while upgrading from version: "
+//									+ oldVersion + ", to: " + currentVersion, e);
+//				}
+//			}
+//
+//		} catch (NameNotBoundException e) {
+//			// No version exists yet; store first version in data service.
+//			dataService.setServiceBinding(versionKey, currentVersion);
+//		}
+//	}
 
 	/**
 	 * Handles conversion from the {@code oldVersion} to the {@code
@@ -456,35 +451,35 @@ public abstract class AbstractService implements Service {
 	 * @throws	IllegalStateException if this method is invoked inside a
 	 *		transactional context 
 	 */
-	public boolean isAlive(long nodeId) {
-		checkNonTransactionalContext();
-		try {
-			CheckNodeStatusTask nodeStatus = new CheckNodeStatusTask(nodeId);
-			transactionScheduler.runTask(nodeStatus, taskOwner);
-			return nodeStatus.isAlive;
-		} catch (IllegalStateException ignore) {
-			// Ignore because the service is shutting down.
-		} catch (Exception e) {
-			// This shouldn't happen, so log.
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.logThrow(Level.WARNING, e,
-						"running CheckNodeStatusTask throws");
-			}
-		}
-		// TBD: is this the correct value to return?  We can't really tell
-		// what the status of a non-local node is if the local node is
-		// shutting down.
-		return false;
-	}
+//	public boolean isAlive(long nodeId) {
+//		checkNonTransactionalContext();
+//		try {
+//			CheckNodeStatusTask nodeStatus = new CheckNodeStatusTask(nodeId);
+//			transactionScheduler.runTask(nodeStatus, taskOwner);
+//			return nodeStatus.isAlive;
+//		} catch (IllegalStateException ignore) {
+//			// Ignore because the service is shutting down.
+//		} catch (Exception e) {
+//			// This shouldn't happen, so log.
+//			if (logger.isLoggable(Level.WARNING)) {
+//				logger.logThrow(Level.WARNING, e,
+//						"running CheckNodeStatusTask throws");
+//			}
+//		}
+//		// TBD: is this the correct value to return?  We can't really tell
+//		// what the status of a non-local node is if the local node is
+//		// shutting down.
+//		return false;
+//	}
 
 	/**
 	 * Creates a {@code TaskQueue} for dependent, transactional tasks.
 	 *
 	 * @return	the task queue
 	 */
-	public TaskQueue createTaskQueue() {
-		return transactionScheduler.createTaskQueue();
-	}
+//	public TaskQueue createTaskQueue() {
+//		return transactionScheduler.createTaskQueue();
+//	}
 
 	/**
 	 * Executes the specified {@code ioTask} by invoking its {@link
@@ -505,49 +500,49 @@ public abstract class AbstractService implements Service {
 	 * @throws	IllegalStateException if this method is invoked within a
 	 *		transactional context
 	 */
-	public boolean runIoTask(IoRunnable ioTask, long nodeId) {
-		int maxAttempts = maxIoAttempts;
-		checkNonTransactionalContext();
-		do {
-			try {
-				ioTask.run();
-				return true;
-			} catch (IOException e) {
-				if (logger.isLoggable(Level.FINEST)) {
-					logger.logThrow(Level.FINEST, e, "IoRunnable {0} throws",
-							ioTask);
-				}
-				if (maxAttempts-- == 0) {
-					logger.logThrow(Level.WARNING, e,
-							"A communication error occured while running an "
-									+ "IO task. Reporting node {0} as failed.",
-							nodeId);
-
-					// Report failure of remote node since are
-					// having trouble contacting it
-					txnProxy.getService(WatchdogService.class).reportFailure(
-							nodeId, this.getClass().toString());
-
-					break;
-				}
-				try {
-					// TBD: what back-off policy do we want here?
-					Thread.sleep(retryWaitTime);
-				} catch (InterruptedException ie) {
-				}
-			}
-		} while (isAlive(nodeId));
-		return false;
-	}
+//	public boolean runIoTask(IoRunnable ioTask, long nodeId) {
+//		int maxAttempts = maxIoAttempts;
+//		checkNonTransactionalContext();
+//		do {
+//			try {
+//				ioTask.run();
+//				return true;
+//			} catch (IOException e) {
+//				if (logger.isLoggable(Level.FINEST)) {
+//					logger.logThrow(Level.FINEST, e, "IoRunnable {0} throws",
+//							ioTask);
+//				}
+//				if (maxAttempts-- == 0) {
+//					logger.logThrow(Level.WARNING, e,
+//							"A communication error occured while running an "
+//									+ "IO task. Reporting node {0} as failed.",
+//							nodeId);
+//
+//					// Report failure of remote node since are
+//					// having trouble contacting it
+//					txnProxy.getService(WatchdogService.class).reportFailure(
+//							nodeId, this.getClass().toString());
+//
+//					break;
+//				}
+//				try {
+//					// TBD: what back-off policy do we want here?
+//					Thread.sleep(retryWaitTime);
+//				} catch (InterruptedException ie) {
+//				}
+//			}
+//		} while (isAlive(nodeId));
+//		return false;
+//	}
 
 	/**
 	 * Returns the data service.
 	 *
 	 * @return the data service
 	 */
-	public DataService getDataService() {
-		return dataService;
-	}
+//	public DataService getDataService() {
+//		return dataService;
+//	}
 
 	/**
 	 * Returns {@code true} if the specified exception is retryable, and

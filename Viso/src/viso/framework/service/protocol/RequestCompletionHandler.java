@@ -1,7 +1,5 @@
 package viso.framework.service.protocol;
 
-import java.util.concurrent.Future;
-
 /**
  * A completion handler for a request carried out by a {@link
  * SessionProtocolHandler}.

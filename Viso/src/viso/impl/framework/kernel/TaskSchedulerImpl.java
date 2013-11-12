@@ -57,7 +57,7 @@ final class TaskSchedulerImpl implements TaskScheduler {
      * threads.
      */
     public static final String CONSUMER_THREADS_PROPERTY =
-        "com.sun.sgs.impl.kernel.task.threads";
+        "viso.impl.kernel.task.threads";
 
     /**
      * The default number of initial consumer threads.

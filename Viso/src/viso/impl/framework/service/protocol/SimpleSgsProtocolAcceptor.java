@@ -234,13 +234,13 @@ public class SimpleSgsProtocolAcceptor extends AbstractService implements
 			/*
 			 * Check service version.
 			 */
-			transactionScheduler.runTask(new AbstractKernelRunnable(
-					"CheckServiceVersion") {
-				public void run() {
-					checkServiceVersion(VERSION_KEY, MAJOR_VERSION,
-							MINOR_VERSION);
-				}
-			}, taskOwner);
+//			transactionScheduler.runTask(new AbstractKernelRunnable(
+//					"CheckServiceVersion") {
+//				public void run() {
+//					checkServiceVersion(VERSION_KEY, MAJOR_VERSION,
+//							MINOR_VERSION);
+//				}
+//			}, taskOwner);
 
 			logger.log(Level.CONFIG,
 					"Created SimpleSgsProtocolAcceptor with properties:"

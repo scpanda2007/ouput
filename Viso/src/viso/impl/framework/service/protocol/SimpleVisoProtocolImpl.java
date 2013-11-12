@@ -22,6 +22,7 @@ import viso.framework.service.protocol.RequestCompletionHandler;
 import viso.framework.service.protocol.SessionProtocol;
 import viso.framework.service.protocol.SessionProtocolHandler;
 import viso.framework.service.protocol.simple.SimpleSgsProtocol;
+import viso.impl.util.AbstractKernelRunnable;
 import viso.util.tools.HexDumper;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.MessageBuffer;
@@ -91,7 +92,16 @@ public class SimpleVisoProtocolImpl implements SessionProtocol {
 	}
 	
 	protected final void scheduleRead(){
-		readNow();
+		if (logger.isLoggable(Level.FINEST)) {
+			logger.log(Level.FINEST, "scheduling read, protocol:{0}", this);
+		}
+		acceptor.scheduleNonTransactionalTask(new AbstractKernelRunnable(
+				"ResumeReadOnReadHandler") {
+			public void run() {
+				logger.log(Level.FINER, "resuming reads protocol:{0}", this);
+				readNow();
+			}
+		});
 	}
 	
 	/**

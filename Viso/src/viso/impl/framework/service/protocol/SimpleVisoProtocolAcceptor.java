@@ -6,14 +6,15 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import viso.framework.kernel.ComponentRegistry;
+import viso.framework.kernel.KernelRunnable;
+import viso.framework.service.TransactionProxy;
 import viso.framework.service.net.ConnectionHandler;
 import viso.framework.service.net.Transport;
 import viso.framework.service.protocol.ProtocolAcceptor;
 import viso.framework.service.protocol.ProtocolDescriptor;
 import viso.framework.service.protocol.ProtocolListener;
-import viso.impl.framework.service.net.TcpTransport;
 import viso.impl.util.AbstractService;
-import viso.test.framework.util.TestProperties;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.PropertiesWrapper;
 
@@ -30,8 +31,16 @@ public class SimpleVisoProtocolAcceptor extends AbstractService implements Proto
 	
 	private Transport transport;
 	
-	public SimpleVisoProtocolAcceptor(Properties properties) throws Exception{
-		super(properties, null, txnProxy, logger);//TODO: just test
+	public SimpleVisoProtocolAcceptor(Properties properties,
+			ComponentRegistry systemRegistry, TransactionProxy txnProxy)
+			throws Exception {
+		this(properties, systemRegistry, txnProxy, logger);
+	}
+	
+	public SimpleVisoProtocolAcceptor(Properties properties,
+			ComponentRegistry systemRegistry, TransactionProxy txnProxy,
+			LoggerWrapper logger) throws Exception{
+		super(properties, systemRegistry, txnProxy, logger);//TODO: just test
 		PropertiesWrapper wrappedProps = new PropertiesWrapper(properties);
 		try {
 			transport = wrappedProps.getClassInstanceProperty(TRANSPORT_PROPERTY, DEFAULT_TRANSPORT, Transport.class, new Class[]{Properties.class}, properties);
@@ -81,11 +90,20 @@ public class SimpleVisoProtocolAcceptor extends AbstractService implements Proto
 			close();
 		}
 	}
+	
+	/**
+	 * Schedules a non-durable, non-transactional {@code task}.
+	 *
+	 * @param	task a non-durable, non-transactional task
+	 */
+	public void scheduleNonTransactionalTask(KernelRunnable task) {
+		taskScheduler.scheduleTask(task, taskOwner);
+	}
 
 	@Override
 	public void close() {
 		// TODO Auto-generated method stub
-		transport.shutdown();
+		shutdown();
 	}
 
 	@Override
@@ -97,7 +115,7 @@ public class SimpleVisoProtocolAcceptor extends AbstractService implements Proto
 	@Override
 	protected void doShutdown() {
 		// TODO Auto-generated method stub
-		
+		transport.shutdown();
 	}
 
 	@Override
