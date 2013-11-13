@@ -9,7 +9,7 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 
 import viso.framework.kernel.TaskScheduler;
-import viso.framework.profile.ProfileCollectorHandle;
+import viso.impl.framework.profile.simple.ProfileCollectorHandle;
 import viso.test.framework.profile.DummyProfileCollectorHandle;
 
 import org.junit.*;

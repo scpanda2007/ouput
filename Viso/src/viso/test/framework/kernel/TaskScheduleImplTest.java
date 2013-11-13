@@ -375,7 +375,7 @@ public class TaskScheduleImplTest {
         TaskQueue queue = taskScheduler.createTaskQueue();
         AtomicInteger runCount = new AtomicInteger(0);
         for (int i = 0; i < 100; i++)
-            queue.addTask(new DependentTask(runCount), taskOwner);
+            queue.addTask(new DependentTask(runCount), taskOwner);//所有任务在一条流水线(串行)上执行
         Thread.sleep(500L);
         assertEquals(100, runCount.get());
     }

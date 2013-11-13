@@ -1,7 +1,11 @@
-package viso.framework.profile;
+package viso.impl.framework.profile.simple;
 
 import viso.framework.auth.Identity;
 import viso.framework.kernel.KernelRunnable;
+import viso.framework.profile.AccessedObjectsDetail;
+import viso.framework.profile.ProfileCollector;
+import viso.framework.profile.ProfileParticipantDetail;
+import viso.framework.profile.TransactionListenerDetail;
 
 
 /**
