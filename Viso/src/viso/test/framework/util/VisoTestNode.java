@@ -1,44 +1,52 @@
 package viso.test.framework.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.MissingResourceException;
 import java.util.Properties;
 
-import viso.framework.kernel.TaskScheduler;
-import viso.impl.framework.profile.simple.ProfileCollectorHandle;
-import viso.test.framework.profile.DummyProfileCollectorHandle;
-
-import org.junit.*;
+import viso.framework.kernel.ComponentRegistry;
+import viso.framework.service.TransactionProxy;
+import viso.impl.framework.kernel.KernelShutdownController;
 
 public class VisoTestNode {
 	/** 程序标识 */
 	String appName;
-	/** 不可见 需要加载的register类 */
-	private LinkedHashSet<Object> components = new LinkedHashSet<Object>();
-	/** 已提供加载的动态模块 */
-	private static ArrayList<String> properties = new ArrayList<String>();
-	
-	private static final String TaskSchedulerClassImplPath = "viso.impl.framework.kernel.TaskSchedulerImpl";
-	
-	private Object taskScheduler;
-	/** taskschedule shutdown */
-    private static Method taskScheduleShutdownMethod;
-	
-    private static Constructor<?> taskSchedulerCtor;
+	/** kernel 类名*/
+	private static final String kernelImplClassName = "viso.impl.framework.kernel.Kernel";
+	/** kernel shutdown */
+    private static Method kernelShutdownMethod;
+    /** transaction proxy */
+    private static Field kernelProxy;
+    /** system registry */
+    private static Field kernelReg;
+    /** shutdown controller */
+    private static Field kernelShutdownCtrl;
+    /** kernel constructor */
+	private static Constructor<?> kernelCtor;
+	/** kernel class */
+	private static Class<?> kernelClass;
     
 	static{
 		try {
 			/** TaskSchedulerClassImpl */
-			Class<?> taskSchedulerClass = Class.forName(TaskSchedulerClassImplPath);
-			taskSchedulerCtor = taskSchedulerClass.getDeclaredConstructor(Properties.class, 
-					ProfileCollectorHandle.class);
-			taskScheduleShutdownMethod = taskSchedulerClass.getDeclaredMethod("shutdown");
-			taskSchedulerCtor.setAccessible(true);
-			taskScheduleShutdownMethod.setAccessible(true);
+			kernelClass = Class.forName(kernelImplClassName);
+			kernelCtor = kernelClass.getDeclaredConstructor(Properties.class);
+			kernelCtor.setAccessible(true);
+			
+			kernelShutdownMethod = kernelClass.getDeclaredMethod("shutdown");
+			kernelShutdownMethod.setAccessible(true);
+			
+			kernelShutdownCtrl = kernelClass.getDeclaredField("shutdownCtrl");
+			kernelShutdownCtrl.setAccessible(true);
+			
+			kernelReg = kernelClass.getDeclaredField("systemRegistry");
+			kernelReg.setAccessible(true);
+			
+			kernelProxy = kernelClass.getDeclaredField("proxy");
+			kernelProxy.setAccessible(true);
+			
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -48,21 +56,44 @@ public class VisoTestNode {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} 
 	}
 	
-	public VisoTestNode(){
-		this("VisoTestNode");
+	/** framework kernel */
+	private Object kernel;
+	private final TransactionProxy txnProxy;
+    private final ComponentRegistry systemRegistry;
+    /** Shutdown controller. */
+    private final KernelShutdownController shutdownCtrl;
+	
+	public VisoTestNode() throws Exception{
+		this("VisoTestNode", null, null);
 	}
 	
-	public VisoTestNode(String appName){
+	public VisoTestNode(String appName, Object object, Properties properties) throws Exception{
+		// TODO Auto-generated constructor stub
 		this.appName = appName;
+		if(properties==null) {
+			kernel = kernelCtor.newInstance(TestProperties.getProperties());
+		}else{
+			kernel = kernelCtor.newInstance(properties);
+		}
+		txnProxy = (TransactionProxy)kernelProxy.get(kernel);
+		systemRegistry = (ComponentRegistry)kernelReg.get(kernel);
+		shutdownCtrl = (KernelShutdownController)kernelShutdownCtrl.get(kernel);
+	}
+
+	public VisoTestNode(String appName) throws Exception{
+		// TODO Auto-generated constructor stub
+		this(appName, null, null);
+	}
+	
+	public void shutdown(boolean clean){
 		try {
-			taskScheduler = taskSchedulerCtor.newInstance(TestProperties.getProperties(), new DummyProfileCollectorHandle());
-			components.add(taskScheduler);
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			kernelShutdownMethod.invoke(kernel);
 		} catch (IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,52 +106,21 @@ public class VisoTestNode {
 		}
 	}
 	
-	public <T> T getInstance(Class<T> klass){
-		
-		Object matchObj = null;
-		
-		for (Object obj : components) {
-			if (klass.isAssignableFrom(obj.getClass())) {
-				if (matchObj != null) {
-					throw new MissingResourceException("More than one "
-							+ "matching component", klass.getName(), null);
-				}
-				matchObj = obj;
-			}
-			
-		}
-		
-		// if no matches were found, it's an error
-        if (matchObj == null) {
-            throw new MissingResourceException("No matching components",
-            		klass.getName(), null);
-        }
-		
-		return klass.cast(matchObj);
+    /**
+     * Returns the shutdown controller for this node.
+     */
+    public KernelShutdownController getShutdownCtrl() {
+        return shutdownCtrl;
+    }
+	
+	public ComponentRegistry getSystemRegistry() {
+		// TODO Auto-generated method stub
+		return systemRegistry;
+	}
+
+	public TransactionProxy getProxy() {
+		// TODO Auto-generated method stub
+		return txnProxy;
 	}
 	
-	public void shutdown(){
-		try {
-			taskScheduleShutdownMethod.invoke(taskScheduler);
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	@Test
-	public void testRun(){
-		try{
-			TaskScheduler taskScheduler = (new VisoTestNode("TestTaskScheduleImpl")).getInstance(TaskScheduler.class);
-			assert taskScheduler!= null;
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-	}
 }

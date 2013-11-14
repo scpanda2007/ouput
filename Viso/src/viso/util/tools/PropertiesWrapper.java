@@ -1,10 +1,6 @@
 package viso.util.tools;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
-
-import viso.framework.service.net.Transport;
 
 public class PropertiesWrapper {
 	
@@ -52,6 +48,12 @@ public class PropertiesWrapper {
 			Object ...arg2) throws Exception {
 		// TODO Auto-generated method stub
 		Object obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
-		return (T)obj;
+		return class1.cast(obj);
+	}
+
+	public boolean getBooleanProperty(
+			String arg0, boolean defaultBoolean) {
+		// TODO Auto-generated method stub
+		return Boolean.parseBoolean(properties.getProperty(arg0,(new Boolean(defaultBoolean)).toString()));
 	}
 }

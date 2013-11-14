@@ -7,7 +7,6 @@ import viso.app.TaskManager;
 import viso.app.TransactionNotActiveException;
 import viso.framework.auth.Identity;
 import viso.framework.service.Transaction;
-import viso.impl.framework.kernel.*;
 
 /**
  * This class is used to resolve the state associated with the current task's

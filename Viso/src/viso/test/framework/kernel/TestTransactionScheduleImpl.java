@@ -1,7 +1,6 @@
 package viso.test.framework.kernel;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import viso.framework.kernel.KernelRunnable;
 
 public class TestTransactionScheduleImpl {

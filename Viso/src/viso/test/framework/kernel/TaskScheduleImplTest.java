@@ -18,7 +18,6 @@ import viso.test.framework.kernel.TestTransactionScheduleImpl.DependentTask;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.After;
-import org.junit.Ignore;
 
 public class TaskScheduleImplTest {
 
@@ -41,13 +40,13 @@ public class TaskScheduleImplTest {
 		taskCount = 0;
 		taskOwner = new DummyIdentity();
 		node = new VisoTestNode("TestTaskScheduleImpl");
-		taskScheduler = node.getInstance(TaskScheduler.class);
+		taskScheduler = node.getSystemRegistry().getComponent(TaskScheduler.class);
 	}
 
     @After
 	public void tearDown() throws Exception {
 //		super.tearDown();
-    	node.shutdown();
+    	node.shutdown(false);
 	}
 
     /**

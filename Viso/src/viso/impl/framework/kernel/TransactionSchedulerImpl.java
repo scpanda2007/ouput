@@ -1,13 +1,16 @@
 package viso.impl.framework.kernel;
 
 import java.beans.PropertyChangeEvent;
+import java.util.LinkedList;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import viso.app.TaskRejectedException;
 import viso.framework.auth.Identity;
 import viso.framework.kernel.KernelRunnable;
 import viso.framework.kernel.Priority;
@@ -16,10 +19,15 @@ import viso.framework.kernel.RecurringTaskHandle;
 import viso.framework.kernel.TaskQueue;
 import viso.framework.kernel.TaskReservation;
 import viso.framework.kernel.TransactionScheduler;
+import viso.framework.kernel.schedule.ScheduledTask;
+import viso.framework.kernel.schedule.SchedulerQueue;
+import viso.framework.kernel.schedule.SchedulerRetryPolicy;
 import viso.framework.profile.ProfileListener;
 import viso.framework.profile.ProfileReport;
 import viso.framework.service.Transaction;
-import viso.impl.framework.profile.simple.ProfileCollectorHandle;
+import viso.impl.framework.profile.ProfileCollectorHandle;
+import viso.impl.framework.service.transaction.TransactionCoordinator;
+import viso.impl.framework.service.transaction.TransactionHandle;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.NamedThreadFactory;
 import viso.util.tools.PropertiesWrapper;
@@ -76,33 +84,33 @@ final class TransactionSchedulerImpl
      * this scheduler.
      */
     public static final String SCHEDULER_QUEUE_PROPERTY =
-            "com.sun.sgs.impl.kernel.scheduler.queue";
+            "viso.impl.kernel.scheduler.queue";
 
     /**
      * The default scheduler.
      */
     public static final String DEFAULT_SCHEDULER_QUEUE =
-            "com.sun.sgs.impl.kernel.schedule.FIFOSchedulerQueue";
+            "viso.impl.framework.kernel.schedule.FIFOSchedulerQueue";
 
     /**
      * The property used to define which retry policy should be used in
      * this scheduler
      */
     public static final String SCHEDULER_RETRY_PROPERTY =
-            "com.sun.sgs.impl.kernel.scheduler.retry";
+            "viso.impl.kernel.scheduler.retry";
 
     /**
      * The default retry policy
      */
     public static final String DEFAULT_SCHEDULER_RETRY =
-            "com.sun.sgs.impl.kernel.schedule.ImmediateRetryPolicy";
+            "viso.impl.framework.kernel.schedule.ImmediateRetryPolicy";
 
     /**
      * The property used to define the default number of initial consumer
      * threads.
      */
     public static final String CONSUMER_THREADS_PROPERTY =
-        "com.sun.sgs.impl.kernel.transaction.threads";
+        "viso.impl.kernel.transaction.threads";
 
     /**
      * The default number of initial consumer threads.

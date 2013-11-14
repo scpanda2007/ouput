@@ -18,7 +18,7 @@ import viso.framework.kernel.RecurringTaskHandle;
 import viso.framework.kernel.TaskQueue;
 import viso.framework.kernel.TaskReservation;
 import viso.framework.kernel.TaskScheduler;
-import viso.impl.framework.profile.simple.ProfileCollectorHandle;
+import viso.impl.framework.profile.ProfileCollectorHandle;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.NamedThreadFactory;
 

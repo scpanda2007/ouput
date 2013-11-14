@@ -1,4 +1,4 @@
-package viso.impl.framework.profile.simple;
+package viso.impl.framework.profile;
 
 import viso.framework.auth.Identity;
 import viso.framework.kernel.KernelRunnable;

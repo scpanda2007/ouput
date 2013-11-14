@@ -1,4 +1,4 @@
-package viso.impl.framework.profile.simple;
+package viso.impl.framework.profile;
 
 import java.util.List;
 import java.util.Map;
