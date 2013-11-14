@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import viso.framework.service.TransactionProxy;
+import viso.impl.framework.auth.IdentityImpl;
 import viso.impl.framework.profile.ProfileCollectorHandleImpl;
 import viso.impl.framework.profile.ProfileCollectorImpl;
 import viso.impl.framework.service.transaction.TransactionCoordinator;
@@ -14,6 +15,8 @@ import viso.impl.framework.service.transaction.TransactionCoordinatorImpl;
 import viso.test.framework.kernel.DummyAccessCoordinatorHandle;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.PropertiesWrapper;
+import viso.framework.auth.Identity;
+import viso.framework.kernel.NodeType;
 import viso.framework.profile.ProfileCollector.ProfileLevel;
 
 class Kernel {
@@ -113,6 +116,14 @@ class Kernel {
 			systemRegistry.addComponent(taskScheduler);
 			systemRegistry.addComponent(profileCollector);
 			
+			if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "The Kernel is ready, version: {0}",
+                        "1");
+            }
+
+            // the core system is ready, so start up the application
+            createAndStartApplication();
+			
 		} catch (Exception e) {
 			if (logger.isLoggable(Level.SEVERE)) {
 				logger.logThrow(Level.SEVERE, e, "Failed on Kernel boot");
@@ -123,6 +134,120 @@ class Kernel {
 		}
 
 	}
+	
+    /**
+     * Helper that starts an application. This method 
+     * configures the <code>Service</code>s associated with the
+     * application and then starts the application.
+     * 
+     * @throws Exception if there is any error in startup
+     */
+    private void createAndStartApplication() throws Exception {
+        String appName = wrappedProperties.getProperty(
+                StandardProperties.APP_NAME);
+
+        if (logger.isLoggable(Level.CONFIG)) {
+            logger.log(Level.CONFIG, "{0}: starting application", appName);
+        }
+
+        // start the service creation 
+        IdentityImpl owner = new SystemIdentity("app:" + appName);
+        createServices(appName, owner);
+        startApplication(appName, owner);
+    }
+
+
+    /**
+     * Creates each of the <code>Service</code>s and their corresponding
+     * <code>Manager</code>s (if any) in order, in preparation for starting
+     * up an application.
+     */
+    private void createServices(String appName, Identity owner) 
+        throws Exception
+    {
+        if (logger.isLoggable(Level.CONFIG)) {
+            logger.log(Level.CONFIG, "{0}: starting services", appName);
+        }
+
+        // create and install a temporary context to use during startup
+        application = new StartupKernelContext(appName);
+        transactionScheduler.setContext(application);
+        taskScheduler.setContext(application);
+        ContextResolver.setTaskState(application, owner);
+
+        // tell the AppContext how to find the managers
+//        InternalContext.setManagerLocator(new ManagerLocatorImpl());
+//        
+//        try {
+//            fetchServices((StartupKernelContext) application);
+//        } catch (Exception e) {
+//            if (logger.isLoggable(Level.SEVERE)) {
+//                logger.logThrow(Level.SEVERE, e, "{0}: failed to create " +
+//                                "services", appName);
+//            }
+//            throw e;
+//        }
+
+        // with the managers fully created, swap in a permanent context
+        application = new KernelContext(application);
+        transactionScheduler.setContext(application);
+        taskScheduler.setContext(application);
+        ContextResolver.setTaskState(application, owner);
+        
+        // notify all of the services that the application state is ready
+        try {
+            application.notifyReady();
+        } catch (Exception e) {
+            if (logger.isLoggable(Level.SEVERE)) {
+                logger.logThrow(Level.SEVERE, e, "{0}: failed when notifying " +
+                                "services that application is ready", appName);
+            }
+            throw e;
+        }
+        
+        // enable the shutdown controller once the components and services
+        // are setup to allow a node shutdown call from either of them.
+        shutdownCtrl.setReady();
+    }
+
+    /** Start the application, throwing an exception if there is a problem. */
+    private void startApplication(String appName, Identity owner) 
+        throws Exception
+    {
+        // at this point the services are ready, so the final step
+        // is to initialize the application by running a special
+        // KernelRunnable in an unbounded transaction, unless we're
+        // running without an application
+        NodeType type = 
+            NodeType.valueOf(
+                wrappedProperties.getProperty(StandardProperties.NODE_TYPE));
+        if (!type.equals(NodeType.coreServerNode)) {
+            try {
+                if (logger.isLoggable(Level.CONFIG)) {
+                    logger.log(Level.CONFIG, "{0}: starting application",
+                               appName);
+                }
+
+//                transactionScheduler.
+//                    runUnboundedTask(
+//                        new AppStartupRunner(wrappedProperties.getProperties()),
+//                        owner);
+
+                logger.log(Level.INFO, 
+                           "{0}: application is ready", application);
+            } catch (Exception e) {
+                if (logger.isLoggable(Level.CONFIG)) {
+                    logger.logThrow(Level.CONFIG, e, "{0}: failed to " +
+                                    "start application", appName);
+                }
+                throw e;
+            }
+        } else {
+            // we're running without an application, so we're finished
+            logger.log(Level.INFO, "{0}: non-application context is ready",
+                       application);
+        }
+    }
 
 	/**
 	 * This is an object created by the {@code Kernel} and passed to the 

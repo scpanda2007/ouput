@@ -9,6 +9,8 @@ import viso.framework.profile.TransactionListenerDetail;
 
 public class ProfileCollectorHandleImpl implements ProfileCollectorHandle{
 
+	ProfileCollectorImpl collector = new ProfileCollectorImpl(ProfileCollector.ProfileLevel.MEDIUM, null, null);
+	
 	public ProfileCollectorHandleImpl(ProfileCollectorImpl profileCollector) {
 		// TODO Auto-generated constructor stub
 	}
@@ -28,7 +30,7 @@ public class ProfileCollectorHandleImpl implements ProfileCollectorHandle{
 	@Override
 	public ProfileCollector getCollector() {
 		// TODO Auto-generated method stub
-		return null;
+		return collector;
 	}
 
 	@Override

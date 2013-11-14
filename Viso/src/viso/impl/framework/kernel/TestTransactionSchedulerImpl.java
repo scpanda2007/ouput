@@ -147,173 +147,173 @@ public class TestTransactionSchedulerImpl {
             }
         }, null);
     }
-
-    @Test
-    public void runUnboundedTaskSingleTask() throws Exception {
-        RunCountTestRunner runner = new RunCountTestRunner(1);
-        txnScheduler.runUnboundedTask(runner, taskOwner);
-        assertEquals(0, runner.getRunCount());
-    }
-
-    @Test(timeout=2000)
-    public void runUnboundedTaskLongTransaction() throws Exception {
-        LongTransactionRunner runner = new LongTransactionRunner(1000L);
-        txnScheduler.runUnboundedTask(runner, taskOwner);
-        assertTrue(runner.isFinished());
-    }
-
-
-    /**
-     * Test interruption.
-     */
-
-    @Test public void scheduleTransactionRetryAfterInterrupt()
-        throws Exception
-    {
-        final AtomicInteger i = new AtomicInteger(0);
-        final KernelRunnable r = new TestAbstractKernelRunnable() {
-                public void run() throws Exception {
-                    if (i.getAndIncrement() == 0)
-                        throw new InterruptedException("test");
-                }
-            };
-        txnScheduler.scheduleTask(r, taskOwner);
-        Thread.sleep(200L);
-        assertEquals(i.get(), 2);
-    }
-
-    @Test public void runTransactionInterrupted() throws Exception {
-        final AtomicInteger i = new AtomicInteger(0);
-        final KernelRunnable r = new TestAbstractKernelRunnable() {
-                public void run() throws Exception {
-                    if (i.getAndIncrement() == 0)
-                        throw new InterruptedException("test");
-                }
-            };
-        try {
-            txnScheduler.runTask(r, taskOwner);
-            fail("Expected Interrupted Exception");
-        } catch (InterruptedException ie) {}
-        assertEquals(i.get(), 1);
-    }
-
-    /**
-     * Test transaction handling.
-     */
-
-    @Test public void runTaskWithRetry() throws Exception {
-        RetryTestRunner runner = new RetryTestRunner();
-        txnScheduler.runTask(runner, taskOwner);
-        assertTrue(runner.isFinished());
-    }
-
-    @Test (expected=RuntimeException.class)
-        public void runNonRetriedTask() throws Exception {
-        txnScheduler.runTask(new TestAbstractKernelRunnable() {
-                public void run() throws Exception {
-                    throw new RuntimeException("intentionally thrown");
-                }
-            }, taskOwner);
-    }
-
-    @Test (expected=RuntimeException.class)
-        public void runNonRetriedTaskExplicitAbort() throws Exception {
-        final TransactionProxy proxy = serverNode.getProxy();
-        txnScheduler.runTask(new TestAbstractKernelRunnable() {
-                public void run() throws Exception {
-                    RuntimeException re = new RuntimeException("intentional");
-                    proxy.getCurrentTransaction().abort(re);
-                    throw re;
-                }
-            }, taskOwner);
-    }
-
-    @Test (expected=Error.class)
-        public void testRunTransactionThrowsError() throws Exception {
-        txnScheduler.runTask(new TestAbstractKernelRunnable() {
-                public void run() throws Exception {
-                    throw new Error("intentionally thrown");
-                }
-            }, taskOwner);
-    }
-
-    /**
-     * Test createTaskQueue.
-     */
-
-    @Test public void scheduleQueuedTasks() throws Exception {
-        TaskQueue queue = txnScheduler.createTaskQueue();
-        AtomicInteger runCount = new AtomicInteger(0);
-        for (int i = 0; i < 10; i++)
-            queue.addTask(new DependentTask(runCount), taskOwner);
-        Thread.sleep(500L);
-        assertEquals(10, runCount.get());
-    }
-
-    @Test (expected=NullPointerException.class)
-        public void scheduleQueuedTasksNull() throws Exception {
-        TaskQueue queue = txnScheduler.createTaskQueue();
-        queue.addTask(null, taskOwner);
-    }
-
-    @Test (expected=NullPointerException.class)
-        public void scheduleQueuedTasksOwnerNull() throws Exception {
-        TaskQueue queue = txnScheduler.createTaskQueue();
-        queue.addTask(new DependentTask(null), null);
-    }
-
-    /**
-     * Test retry policy
-     */
-
-    @Test public void dropFailedTask() throws Exception {
-        final Exception result = new Exception("task failed");
-        replaceRetryPolicy(createRetryPolicy(SchedulerRetryAction.DROP));
-        final AtomicInteger i = new AtomicInteger(0);
-        final KernelRunnable r = new TestAbstractKernelRunnable() {
-            public void run() throws Exception {
-                if (i.getAndIncrement() == 0)
-                    throw result;
-            }
-        };
-        try {
-            txnScheduler.runTask(r, taskOwner);
-            fail("expected Exception");
-        } catch(Exception e) {
-            assertEquals(result, e);
-        } finally {
-            assertEquals(i.get(), 1);
-        }
-    }
-
-    @Test public void retryFailedTask() throws Exception {
-        final Exception result = new Exception("task failed");
-        replaceRetryPolicy(createRetryPolicy(SchedulerRetryAction.RETRY_NOW));
-        final AtomicInteger i = new AtomicInteger(0);
-        final KernelRunnable r = new TestAbstractKernelRunnable() {
-            public void run() throws Exception {
-                if (i.getAndIncrement() == 0)
-                    throw result;
-            }
-        };
-        txnScheduler.runTask(r, taskOwner);
-        assertEquals(i.get(), 2);
-    }
-
-    @Test public void handoffFailedTask() throws Exception {
-        final Exception result = new Exception("task failed");
-        replaceRetryPolicy(createRetryPolicy(SchedulerRetryAction.RETRY_LATER));
-        final AtomicInteger i = new AtomicInteger(0);
-        final KernelRunnable r = new TestAbstractKernelRunnable() {
-            public void run() throws Exception {
-                if (i.getAndIncrement() == 0)
-                    throw result;
-            }
-        };
-        txnScheduler.runTask(r, taskOwner);
-        assertEquals(i.get(), 2);
-    }
-
+//
+//    @Test
+//    public void runUnboundedTaskSingleTask() throws Exception {
+//        RunCountTestRunner runner = new RunCountTestRunner(1);
+//        txnScheduler.runUnboundedTask(runner, taskOwner);
+//        assertEquals(0, runner.getRunCount());
+//    }
+//
+//    @Test(timeout=2000)
+//    public void runUnboundedTaskLongTransaction() throws Exception {
+//        LongTransactionRunner runner = new LongTransactionRunner(1000L);
+//        txnScheduler.runUnboundedTask(runner, taskOwner);
+//        assertTrue(runner.isFinished());
+//    }
+//
+//
+//    /**
+//     * Test interruption.
+//     */
+//
+//    @Test public void scheduleTransactionRetryAfterInterrupt()
+//        throws Exception
+//    {
+//        final AtomicInteger i = new AtomicInteger(0);
+//        final KernelRunnable r = new TestAbstractKernelRunnable() {
+//                public void run() throws Exception {
+//                    if (i.getAndIncrement() == 0)
+//                        throw new InterruptedException("test");
+//                }
+//            };
+//        txnScheduler.scheduleTask(r, taskOwner);
+//        Thread.sleep(200L);
+//        assertEquals(i.get(), 2);
+//    }
+//
+//    @Test public void runTransactionInterrupted() throws Exception {
+//        final AtomicInteger i = new AtomicInteger(0);
+//        final KernelRunnable r = new TestAbstractKernelRunnable() {
+//                public void run() throws Exception {
+//                    if (i.getAndIncrement() == 0)
+//                        throw new InterruptedException("test");
+//                }
+//            };
+//        try {
+//            txnScheduler.runTask(r, taskOwner);
+//            fail("Expected Interrupted Exception");
+//        } catch (InterruptedException ie) {}
+//        assertEquals(i.get(), 1);
+//    }
+//
+//    /**
+//     * Test transaction handling.
+//     */
+//
+//    @Test public void runTaskWithRetry() throws Exception {
+//        RetryTestRunner runner = new RetryTestRunner();
+//        txnScheduler.runTask(runner, taskOwner);
+//        assertTrue(runner.isFinished());
+//    }
+//
+//    @Test (expected=RuntimeException.class)
+//        public void runNonRetriedTask() throws Exception {
+//        txnScheduler.runTask(new TestAbstractKernelRunnable() {
+//                public void run() throws Exception {
+//                    throw new RuntimeException("intentionally thrown");
+//                }
+//            }, taskOwner);
+//    }
+//
+//    @Test (expected=RuntimeException.class)
+//        public void runNonRetriedTaskExplicitAbort() throws Exception {
+//        final TransactionProxy proxy = serverNode.getProxy();
+//        txnScheduler.runTask(new TestAbstractKernelRunnable() {
+//                public void run() throws Exception {
+//                    RuntimeException re = new RuntimeException("intentional");
+//                    proxy.getCurrentTransaction().abort(re);
+//                    throw re;
+//                }
+//            }, taskOwner);
+//    }
+//
+//    @Test (expected=Error.class)
+//        public void testRunTransactionThrowsError() throws Exception {
+//        txnScheduler.runTask(new TestAbstractKernelRunnable() {
+//                public void run() throws Exception {
+//                    throw new Error("intentionally thrown");
+//                }
+//            }, taskOwner);
+//    }
+//
+//    /**
+//     * Test createTaskQueue.
+//     */
+//
+//    @Test public void scheduleQueuedTasks() throws Exception {
+//        TaskQueue queue = txnScheduler.createTaskQueue();
+//        AtomicInteger runCount = new AtomicInteger(0);
+//        for (int i = 0; i < 10; i++)
+//            queue.addTask(new DependentTask(runCount), taskOwner);
+//        Thread.sleep(500L);
+//        assertEquals(10, runCount.get());
+//    }
+//
+//    @Test (expected=NullPointerException.class)
+//        public void scheduleQueuedTasksNull() throws Exception {
+//        TaskQueue queue = txnScheduler.createTaskQueue();
+//        queue.addTask(null, taskOwner);
+//    }
+//
+//    @Test (expected=NullPointerException.class)
+//        public void scheduleQueuedTasksOwnerNull() throws Exception {
+//        TaskQueue queue = txnScheduler.createTaskQueue();
+//        queue.addTask(new DependentTask(null), null);
+//    }
+//
+//    /**
+//     * Test retry policy
+//     */
+//
+//    @Test public void dropFailedTask() throws Exception {
+//        final Exception result = new Exception("task failed");
+//        replaceRetryPolicy(createRetryPolicy(SchedulerRetryAction.DROP));
+//        final AtomicInteger i = new AtomicInteger(0);
+//        final KernelRunnable r = new TestAbstractKernelRunnable() {
+//            public void run() throws Exception {
+//                if (i.getAndIncrement() == 0)
+//                    throw result;
+//            }
+//        };
+//        try {
+//            txnScheduler.runTask(r, taskOwner);
+//            fail("expected Exception");
+//        } catch(Exception e) {
+//            assertEquals(result, e);
+//        } finally {
+//            assertEquals(i.get(), 1);
+//        }
+//    }
+//
+//    @Test public void retryFailedTask() throws Exception {
+//        final Exception result = new Exception("task failed");
+//        replaceRetryPolicy(createRetryPolicy(SchedulerRetryAction.RETRY_NOW));
+//        final AtomicInteger i = new AtomicInteger(0);
+//        final KernelRunnable r = new TestAbstractKernelRunnable() {
+//            public void run() throws Exception {
+//                if (i.getAndIncrement() == 0)
+//                    throw result;
+//            }
+//        };
+//        txnScheduler.runTask(r, taskOwner);
+//        assertEquals(i.get(), 2);
+//    }
+//
+//    @Test public void handoffFailedTask() throws Exception {
+//        final Exception result = new Exception("task failed");
+//        replaceRetryPolicy(createRetryPolicy(SchedulerRetryAction.RETRY_LATER));
+//        final AtomicInteger i = new AtomicInteger(0);
+//        final KernelRunnable r = new TestAbstractKernelRunnable() {
+//            public void run() throws Exception {
+//                if (i.getAndIncrement() == 0)
+//                    throw result;
+//            }
+//        };
+//        txnScheduler.runTask(r, taskOwner);
+//        assertEquals(i.get(), 2);
+//    }
+//
     /**
      * Utility methods.
      */

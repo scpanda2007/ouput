@@ -13,9 +13,14 @@ import viso.framework.profile.ProfileListener;
 
 public final class ProfileCollectorImpl implements ProfileCollector{
 
+	// The default profiling level.  This is initially set from 
+    // properties at startup.
+    private ProfileLevel defaultProfileLevel;
+	
 	public ProfileCollectorImpl(ProfileLevel profileLevel,
 			Properties appProperties, ComponentRegistry systemRegistry) {
 		// TODO Auto-generated constructor stub
+		defaultProfileLevel = profileLevel;
 	}
 
 	@Override
@@ -45,7 +50,7 @@ public final class ProfileCollectorImpl implements ProfileCollector{
 	@Override
 	public ProfileLevel getDefaultProfileLevel() {
 		// TODO Auto-generated method stub
-		return null;
+		return defaultProfileLevel;
 	}
 
 	@Override
