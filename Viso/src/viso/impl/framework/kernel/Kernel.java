@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import viso.framework.service.TransactionProxy;
 import viso.impl.framework.auth.IdentityImpl;
+import viso.impl.framework.profile.ProfileCollectorHandle;
 import viso.impl.framework.profile.ProfileCollectorHandleImpl;
 import viso.impl.framework.profile.ProfileCollectorImpl;
 import viso.impl.framework.service.transaction.TransactionCoordinator;
@@ -27,6 +28,20 @@ class Kernel {
 	//////////////////////////////////////////////////////////////////////////////////
 	// the property for setting profiling levels
 	public static final String PROFILE_LEVEL_PROPERTY = "viso.impl.kernel.profile.level";
+	
+    // The property for specifying the access coordinator
+    public static final String ACCESS_COORDINATOR_PROPERTY =
+	"viso.impl.kernel.access.coordinator";
+
+    // The default access coordinator to use if we are using je
+    private static final String DEFAULT_ACCESS_COORDINATOR_JE =
+        "viso.impl.framework.kernel.LockingAccessCoordinator";
+    // the default access coordinator to use if we are using bdb
+    private static final String DEFAULT_ACCESS_COORDINATOR_BDB =
+        "viso.impl.framework.kernel.TrackingAccessCoordinator";
+    // the default access coordinator to use if the db type is unknown
+    private static final String DEFAULT_ACCESS_COORDINATOR =
+        "viso.impl.framework.kernel.LockingAccessCoordinator";
 
 	//////////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +109,8 @@ class Kernel {
 					profileCollector);
 
 			// create the access coordinator
-			AccessCoordinatorHandle accessCoordinator = new DummyAccessCoordinatorHandle();
+			AccessCoordinatorHandle accessCoordinator = getAccessCoordinator(
+                    appProperties, proxy, profileCollectorHandle);
 
 			TransactionCoordinator transactionCoordinator = new TransactionCoordinatorImpl(
 					appProperties, profileCollectorHandle);
@@ -134,6 +150,42 @@ class Kernel {
 		}
 
 	}
+	
+    /**
+     * Construct the AccessCoordinatorHandle.  Our default access
+     * coordinator is different depending on whether we are using bdb or je.
+     * This of course assumes we are using the default BerkeleyDB backed data
+     * store, if we aren't, or we don't know, use the global default.
+     */
+    private AccessCoordinatorHandle getAccessCoordinator(
+            Properties properties,
+            TransactionProxy proxy,
+            ProfileCollectorHandle profileCollectorHandle) {
+        String dbType = properties.getProperty(
+                "viso.impl.service.data.store.db.environment.class");
+        String defaultCoordinatorClass = DEFAULT_ACCESS_COORDINATOR;
+        
+        if (dbType == null) {
+            defaultCoordinatorClass = DEFAULT_ACCESS_COORDINATOR;
+        } else if (dbType.equals(
+                "viso.impl.service.data.store.db.je.JeEnvironment")) {
+            defaultCoordinatorClass = DEFAULT_ACCESS_COORDINATOR_JE;
+        } else if (dbType.equals(
+                "viso.impl.service.data.store.db.bdb.BdbEnvironment")) {
+            defaultCoordinatorClass = DEFAULT_ACCESS_COORDINATOR_BDB;
+        }
+        
+        return wrappedProperties.getClassInstanceProperty(
+                ACCESS_COORDINATOR_PROPERTY,
+                defaultCoordinatorClass,
+                AccessCoordinatorHandle.class,
+                new Class[]{
+                    Properties.class,
+                    TransactionProxy.class,
+                    ProfileCollectorHandle.class
+                },
+                properties, proxy, profileCollectorHandle);
+    }
 	
     /**
      * Helper that starts an application. This method 

@@ -24,5 +24,11 @@ public class Objects {
 			throw new IllegalStateException("the param " + id + " is empty.");
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> T uncheckedCast(Object obj){
+		checkNull("uncheckedCast object",obj);
+		return (T)obj;
+	}
 
 }

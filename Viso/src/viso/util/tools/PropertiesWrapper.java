@@ -1,5 +1,6 @@
 package viso.util.tools;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
 public class PropertiesWrapper {
@@ -45,10 +46,35 @@ public class PropertiesWrapper {
 
 	public <T> T getClassInstanceProperty(String arg0,
 			String default_, Class<T> class1, Class<?>[] classes,
-			Object ...arg2) throws Exception {
+			Object ...arg2){
 		// TODO Auto-generated method stub
-		Object obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
-		return class1.cast(obj);
+		Object obj;
+		try {
+			obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
+			return class1.cast(obj);
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public boolean getBooleanProperty(
