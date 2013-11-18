@@ -82,4 +82,10 @@ public class PropertiesWrapper {
 		// TODO Auto-generated method stub
 		return Boolean.parseBoolean(properties.getProperty(arg0,(new Boolean(defaultBoolean)).toString()));
 	}
+
+	public <T extends Enum<T>> T getEnumProperty(String property,
+			Class<T> class1, T defaultValue) {
+		// TODO Auto-generated method stub
+		return Enum.valueOf(class1, properties.getProperty(property,defaultValue.toString()));
+	}
 }
