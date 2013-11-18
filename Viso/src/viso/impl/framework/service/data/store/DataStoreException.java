@@ -1,4 +1,4 @@
-package viso.impl.framework.service.data;
+package viso.impl.framework.service.data.store;
 
 
 /**
@@ -29,4 +29,4 @@ public class DataStoreException extends RuntimeException {
 	super(message, cause);
     }
 }
-  
+    
