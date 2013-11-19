@@ -9,7 +9,7 @@ public class Objects {
 	public static void checkNull(final String id, Object arg)
 			throws IllegalStateException {
 		if (null == arg) {
-			throw new IllegalStateException("the param " + id + " is (null).");// 将错误码封装在 具体的验证其里面   
+			throw new NullPointerException("the param " + id + " is (null).");// 将错误码封装在 具体的验证其里面   
 		}
 		if (arg instanceof List) {
 			int count = ((List) arg).size();

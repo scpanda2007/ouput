@@ -17,7 +17,7 @@ import viso.util.tools.LoggerWrapper;
 /**
  * Implements a {@link DataStore} that reports profiling information about data
  * store operations under the name
- * "com.sun.sgs.impl.service.data.store.DataStore", implementing
+ * "viso.impl.framework.service.data.store.DataStore", implementing
  * {@code DataStore} operations and transaction participant methods by
  * delegating them to another data store.
  */

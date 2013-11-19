@@ -114,7 +114,7 @@ public class SimpleSgsProtocolAcceptor extends AbstractService implements
 	public static final String TRANSPORT_PROPERTY = PKG_NAME + ".transport";
 
 	/** The default transport. */
-	public static final String DEFAULT_TRANSPORT = "com.sun.sgs.impl.transport.tcp.TcpTransport";
+	public static final String DEFAULT_TRANSPORT = "viso.impl.framework.service.net.TcpTransport";
 
 	/** The protocol version property.  Valid values are 4 and 5. */
 	public static final String PROTOCOL_VERSION_PROPERTY = PKG_NAME

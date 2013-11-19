@@ -65,7 +65,7 @@ public final class ProfileCollectorImpl implements ProfileCollector {
 	/**
 	 * The standard prefix for consumer names created by core packages.
 	 */
-	public static final String CORE_CONSUMER_PREFIX = "com.sun.sgs.";
+	public static final String CORE_CONSUMER_PREFIX = "viso.framework.";
 
 	// the logger for this class
 	private static final LoggerWrapper logger = new LoggerWrapper(Logger
@@ -75,7 +75,7 @@ public final class ProfileCollectorImpl implements ProfileCollector {
 	 * The property telling us whether we should use the default platform
 	 * MBeanServer or create a new one.
 	 */
-	public static final String CREATE_MBEAN_SERVER_PROPERTY = "com.sun.sgs.impl.profile.create.mbeanserver";
+	public static final String CREATE_MBEAN_SERVER_PROPERTY = "viso.impl.framework.profile.create.mbeanserver";
 
 	// A map from profile consumer name to profile consumer object
 	private final ConcurrentHashMap<String, ProfileConsumerImpl> consumers;
