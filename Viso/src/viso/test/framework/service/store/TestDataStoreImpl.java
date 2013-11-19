@@ -2006,6 +2006,7 @@ public class TestDataStoreImpl extends Assert {
 
 	@Test
 	public void testGetClassInfoShuttingDownExistingTxn() throws Exception {
+//		getClassId.run();TODO: need run with certern sequeence
 		testShuttingDownExistingTxn(getClassInfo);
 	}
 

@@ -12,10 +12,8 @@ import viso.framework.service.store.db.DbEnvironment;
 import viso.framework.service.store.db.DbTransaction;
 import viso.util.tools.LoggerWrapper;
 
-import static viso.impl.framework.service.data.store.
-DataStoreHeader.NEXT_NODE_ID_KEY;
-import static viso.impl.framework.service.data.store.
-DataStoreHeader.NEXT_OBJ_ID_KEY;
+import static viso.impl.framework.service.data.store.DataStoreHeader.NEXT_NODE_ID_KEY;
+import static viso.impl.framework.service.data.store.DataStoreHeader.NEXT_OBJ_ID_KEY;
 
 /**
  * Utility methods for database operations needed to implement a

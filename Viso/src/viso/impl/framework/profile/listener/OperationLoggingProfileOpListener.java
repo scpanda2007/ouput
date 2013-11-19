@@ -85,12 +85,12 @@ public class OperationLoggingProfileOpListener implements ProfileListener {
 
 	/** {@inheritDoc} */
 	public void propertyChange(PropertyChangeEvent event) {
-		if (event.getPropertyName().equals("com.sun.sgs.profile.newop")) {
+		if (event.getPropertyName().equals("viso.framework.profile.newop")) {
 			ProfileOperation op = (ProfileOperation) (event.getNewValue());
 			opCounts.put(op.getName(), 0L);
 		} else {
 			if (event.getPropertyName().equals(
-					"com.sun.sgs.profile.threadcount")) {
+					"viso.framework.profile.threadcount")) {
 				threadCount = ((Integer) (event.getNewValue())).intValue();
 			}
 		}

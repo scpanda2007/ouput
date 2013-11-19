@@ -257,19 +257,19 @@ public final class ProfileCollectorImpl implements ProfileCollector {
 		}
 		listeners.put(listener, canRemove);
 		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				"com.sun.sgs.profile.threadcount", null, schedulerThreadCount);
+				"viso.framework.profile.threadcount", null, schedulerThreadCount);
 
 		listener.propertyChange(event);
 		for (ProfileConsumerImpl pc : consumers.values()) {
 			for (ProfileOperation p : pc.getOperations()) {
 				event = new PropertyChangeEvent(this,
-						"com.sun.sgs.profile.newop", null, p);
+						"viso.framework.profile.newop", null, p);
 				listener.propertyChange(event);
 			}
 		}
 
 		if (localNodeId > -1) {
-			event = new PropertyChangeEvent(this, "com.sun.sgs.profile.nodeid",
+			event = new PropertyChangeEvent(this, "viso.framework.profile.nodeid",
 					null, localNodeId);
 			listener.propertyChange(event);
 		}
@@ -345,7 +345,7 @@ public final class ProfileCollectorImpl implements ProfileCollector {
 	void notifyThreadAdded() {
 		schedulerThreadCount++;
 		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				"com.sun.sgs.profile.threadcount", schedulerThreadCount - 1,
+				"viso.framework.profile.threadcount", schedulerThreadCount - 1,
 				schedulerThreadCount);
 
 		for (ProfileListener listener : listeners.keySet()) {
@@ -360,7 +360,7 @@ public final class ProfileCollectorImpl implements ProfileCollector {
 	void notifyThreadRemoved() {
 		schedulerThreadCount--;
 		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				"com.sun.sgs.profile.threadcount", schedulerThreadCount + 1,
+				"viso.framework.profile.threadcount", schedulerThreadCount + 1,
 				schedulerThreadCount);
 
 		for (ProfileListener listener : listeners.keySet()) {
@@ -374,7 +374,7 @@ public final class ProfileCollectorImpl implements ProfileCollector {
 	void notifyNodeIdAssigned(long nodeId) {
 		localNodeId = nodeId;
 		PropertyChangeEvent event = new PropertyChangeEvent(this,
-				"com.sun.sgs.profile.nodeid", null, nodeId);
+				"viso.framework.profile.nodeid", null, nodeId);
 		for (ProfileListener listener : listeners.keySet()) {
 			listener.propertyChange(event);
 		}
