@@ -5,11 +5,11 @@ package viso.impl.framework.service.transaction;
 public interface TransactionCoordinator {
 
     /** The property used to specify the timeout value for transactions. */
-    String TXN_TIMEOUT_PROPERTY = "com.sun.sgs.txn.timeout";
+    String TXN_TIMEOUT_PROPERTY = "viso.framework.txn.timeout";
 
     /** The property used to specify the value for unbounded timeout. */
     String TXN_UNBOUNDED_TIMEOUT_PROPERTY =
-	"com.sun.sgs.txn.timeout.unbounded";
+	"viso.framework.txn.timeout.unbounded";
 
     /** 
      * A property used to control whether we allow the prepareAndCommit
@@ -19,7 +19,7 @@ public interface TransactionCoordinator {
      * The flag defaults to false.
      */
     String TXN_DISABLE_PREPAREANDCOMMIT_OPT_PROPERTY =
-            "com.sun.sgs.txn.disable.prepareandcommit.optimization";
+            "viso.framework.txn.disable.prepareandcommit.optimization";
     /**
      * Creates a new transaction, and returns a handle for managing it.
      * If a timeout of {@link ScheduledTask#UNBOUNDED} is given, a

@@ -101,11 +101,11 @@ public class DataStoreImpl extends AbstractDataStore {
     
     /** The property that specifies the environment class. */
     public static final String ENVIRONMENT_CLASS_PROPERTY =
-	"com.sun.sgs.impl.service.data.store.db.environment.class";
+	"viso.impl.framework.service.data.store.db.environment.class";
     
     /** The default environment class. */
     public static final String DEFAULT_ENVIRONMENT_CLASS =
-        "com.sun.sgs.impl.service.data.store.db.je.JeEnvironment";
+        "viso.impl.framework.service.data.store.db.je.JeEnvironment";
 
     /** The object data for a placeholder. */
     private static final byte[] PLACEHOLDER_DATA = { PLACEHOLDER_OBJ_VALUE };

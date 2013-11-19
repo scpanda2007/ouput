@@ -292,7 +292,7 @@ public final class StandardProperties {
      * milliseconds, for a client session to relocate to a new node.
      */
     public static final String SESSION_RELOCATION_TIMEOUT_PROPERTY =
-	"com.sun.sgs.impl.service.session.relocation.timeout";
+	"viso.impl.framework.service.session.relocation.timeout";
 
     /**
      * The default session relocation timeout, in milliseconds.

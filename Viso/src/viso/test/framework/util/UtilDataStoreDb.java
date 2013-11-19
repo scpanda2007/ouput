@@ -5,7 +5,7 @@ import java.util.Properties;
 
 import viso.framework.service.store.db.DbEnvironment;
 import viso.impl.framework.service.data.store.DataStoreImpl;
-import viso.impl.framework.service.data.store.bdb.BdbEnvironment;
+import viso.impl.framework.service.data.store.db.bdb.BdbEnvironment;
 
 /** Utilities for handling the data store database layer in tests. */
 public final class UtilDataStoreDb {
@@ -32,10 +32,10 @@ public final class UtilDataStoreDb {
 				.getProperty(DataStoreImpl.ENVIRONMENT_CLASS_PROPERTY);
 		if (className == null
 				|| className
-						.equals("com.sun.sgs.impl.service.data.store.db.bdb.BdbEnvironment")) {
+						.equals("viso.impl.framework.service.data.store.db.bdb.BdbEnvironment")) {
 			return EnvironmentType.BDB;
 		} else if (className
-				.equals("com.sun.sgs.impl.service.data.store.db.je."
+				.equals("viso.impl.framework.service.data.store.db.je."
 						+ "JeEnvironment")) {
 			return EnvironmentType.JE;
 		} else {

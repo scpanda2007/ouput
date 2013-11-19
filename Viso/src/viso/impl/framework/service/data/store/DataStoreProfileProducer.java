@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.management.JMException;
 
+import viso.framework.management.DataStoreStatsMXBean;
 import viso.framework.profile.ProfileCollector;
 import viso.framework.profile.ProfileOperation;
 import viso.framework.service.Transaction;
@@ -23,7 +24,7 @@ import viso.util.tools.LoggerWrapper;
 public class DataStoreProfileProducer implements DataStore,
 		TransactionParticipant {
 	/** The name of this class. */
-	private static final String CLASSNAME = "com.sun.sgs.impl.service.data.store.DataStoreProfileProducer";
+	private static final String CLASSNAME = "viso.impl.framework.service.data.store.DataStoreProfileProducer";
 
 	/** The logger for this class. */
 	private static final LoggerWrapper logger = new LoggerWrapper(

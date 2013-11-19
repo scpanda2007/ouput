@@ -77,7 +77,7 @@ public class LockManager<K> {
 
 	/** The logger for this class. */
 	static final LoggerWrapper logger = new LoggerWrapper(Logger
-			.getLogger("com.sun.sgs.impl.util.lock"));
+			.getLogger("viso.impl.framework.util.lock"));
 
 	/**
 	 * The maximum number of milliseconds to spend attempting to acquire a

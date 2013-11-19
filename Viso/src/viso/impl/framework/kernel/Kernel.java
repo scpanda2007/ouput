@@ -13,7 +13,6 @@ import viso.impl.framework.profile.ProfileCollectorHandleImpl;
 import viso.impl.framework.profile.ProfileCollectorImpl;
 import viso.impl.framework.service.transaction.TransactionCoordinator;
 import viso.impl.framework.service.transaction.TransactionCoordinatorImpl;
-import viso.test.framework.kernel.DummyAccessCoordinatorHandle;
 import viso.util.tools.LoggerWrapper;
 import viso.util.tools.PropertiesWrapper;
 import viso.framework.auth.Identity;

@@ -44,7 +44,7 @@ public class ImmediateRetryPolicy implements SchedulerRetryPolicy {
      * printing a WARNING message.
      */
     static final String RETRY_WARNING_THRESHOLD_PROPERTY =
-            "com.sun.sgs.impl.kernel.schedule.retry.warning.threshold";
+            "viso.impl.framework.kernel.schedule.retry.warning.threshold";
 
     /**
      * The default retry warning threshold

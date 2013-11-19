@@ -82,7 +82,7 @@ import viso.util.tools.PropertiesWrapper;
 public class SimpleSgsProtocolAcceptor extends AbstractService implements
 		ProtocolAcceptor {
 	/** The package name. */
-	private static final String PKG_NAME = "com.sun.sgs.impl.protocol.simple";
+	private static final String PKG_NAME = "viso.impl.framework.protocol.simple";
 
 	/** The logger for this class. */
 	private static final LoggerWrapper staticLogger = new LoggerWrapper(Logger

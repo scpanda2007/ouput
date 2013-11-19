@@ -1,4 +1,4 @@
-package viso.impl.framework.service.data.store.bdb;
+package viso.impl.framework.service.data.store.db.bdb;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -126,7 +126,7 @@ import viso.util.tools.PropertiesWrapper;
 public class BdbEnvironment implements DbEnvironment {
 
 	/** The package name. */
-	private static final String PACKAGE = "com.sun.sgs.impl.service.data.store.db.bdb";
+	private static final String PACKAGE = "viso.impl.framework.service.data.store.db.bdb";
 
 	/** The logger for this class. */
 	static final LoggerWrapper logger = new LoggerWrapper(

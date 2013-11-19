@@ -6,8 +6,12 @@ import javax.management.JMException;
 
 import viso.framework.auth.Identity;
 import viso.framework.kernel.KernelRunnable;
+import viso.impl.framework.kernel.ConfigManager;
 import viso.impl.framework.profile.ProfileCollectorHandle;
+import viso.impl.framework.profile.ProfileCollectorHandleImpl;
 import viso.impl.framework.profile.ProfileCollectorImpl;
+import viso.impl.framework.profile.listener.OperationLoggingProfileOpListener;
+import viso.framework.profile.ProfileCollector.ProfileLevel;
 
 
 /** Simple profiling utility to support tests. */

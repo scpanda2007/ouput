@@ -8,6 +8,7 @@ import viso.impl.util.lock.LockManager;
 import viso.impl.util.lock.Locker;
 import viso.impl.util.lock.TxnLockManager;
 import viso.impl.util.lock.TxnLocker;
+import viso.test.framework.util.DummyTransaction;
 
 import java.util.logging.Level;
 import org.junit.Before;

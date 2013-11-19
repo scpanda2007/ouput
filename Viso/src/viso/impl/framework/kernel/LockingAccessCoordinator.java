@@ -89,7 +89,7 @@ import static viso.util.tools.Objects.checkNull;
 public class LockingAccessCoordinator extends AbstractAccessCoordinator {
 
 	/** The class name. */
-	private static final String CLASS = "com.sun.sgs.impl.kernel.LockingAccessCoordinator";
+	private static final String CLASS = "viso.impl.framework.kernel.LockingAccessCoordinator";
 
 	/**
 	 * The property for specifying the maximum number of milliseconds to wait

@@ -105,7 +105,7 @@ public abstract class AbstractService implements Service {
 	private volatile Thread shutdownThread;
 
 	/** Prefix for io task related properties. */
-	public static final String IO_TASK_PROPERTY_PREFIX = "com.sun.sgs.impl.util.io.task";
+	public static final String IO_TASK_PROPERTY_PREFIX = "viso.impl.framework.util.io.task";
 
 	/**
 	 * An optional property that specifies the maximum number of retries for

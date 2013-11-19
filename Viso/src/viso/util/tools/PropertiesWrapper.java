@@ -34,47 +34,33 @@ public class PropertiesWrapper {
 	public int getIntProperty(String arg0, int arg1, int min, int max){
 		int value = getIntProperty(arg0, arg1);
 		if(value >= min && value<=max) return value;
-		return arg1;
+		throw new IllegalArgumentException(" the param "+arg0+" with value:"+value+" is not between "+min+" and "+max);
 	}
 
 	public long getLongProperty(String arg0,
 			long default_, long min, long max) {
 		long value = getLongProperty(arg0, default_);
 		if(value >= min && value<=max) return value;
-		return default_;
+		throw new IllegalArgumentException(" the param "+arg0+" with value:"+value+" is not between "+min+" and "+max);
 	}
 
 	public <T> T getClassInstanceProperty(String arg0,
 			String default_, Class<T> class1, Class<?>[] classes,
-			Object ...arg2){
+			Object ...arg2) {
 		// TODO Auto-generated method stub
 		Object obj;
 		try {
 			obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
 			return class1.cast(obj);
-		} catch (InstantiationException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(e instanceof InvocationTargetException){
+				if(((InvocationTargetException)e).getTargetException() instanceof RuntimeException ){
+					throw ((RuntimeException)((InvocationTargetException)e).getTargetException());
+				}
+			}
+			throw new IllegalStateException(e.getCause());
 		}
-		return null;
 	}
 
 	public boolean getBooleanProperty(

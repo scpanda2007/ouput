@@ -1,4 +1,4 @@
-package viso.impl.framework.service.data.store.bdb;
+package viso.impl.framework.service.data.store.db.bdb;
 
 import com.sleepycat.db.Cursor;
 import com.sleepycat.db.Database;

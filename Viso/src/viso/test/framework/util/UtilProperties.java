@@ -8,7 +8,7 @@ public class UtilProperties {
 
 	/**
 	 * Creates a property list with the specified keys and values, and
-	 * including all current system properties that start with "com.sun.sgs.",
+	 * including all current system properties that start with "viso.framework.",
 	 * "java.rmi." or "je.".  Including those system properties allows
 	 * supplying server properties from the command line.  It is necessary to
 	 * not include all properties because some of them interfere if used for

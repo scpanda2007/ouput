@@ -37,7 +37,7 @@ public interface ProfileListener {
      * implementations.  The value assigned to the property must be an
      * integer.
      */
-    String WINDOW_SIZE_PROPERTY = "com.sun.sgs.profile.listener.window.size";
+    String WINDOW_SIZE_PROPERTY = "viso.framework.profile.listener.window.size";
     
     /**
      * Notifies this listener of a new change in the system
