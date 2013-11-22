@@ -31,4 +31,9 @@ public class Objects {
 		return (T)obj;
 	}
 
+	public static String safeToString(Object object) {
+		// TODO Auto-generated method stub
+		return object.toString();
+	}
+
 }

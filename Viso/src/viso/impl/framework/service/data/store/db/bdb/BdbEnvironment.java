@@ -354,7 +354,7 @@ public class BdbEnvironment implements DbEnvironment {
 			env = new Environment(new File(directory), config);
 		} catch (FileNotFoundException e) {
 			throw new DbDatabaseException(
-					"DataStore directory does not exist: " + directory);
+					"DataStore directory does not exist -- in BdbEnvironment : " + directory);
 		} catch (DatabaseException e) {
 			throw convertException(e, false);
 		}
