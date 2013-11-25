@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import viso.app.ManagedObject;
+
 public class Objects {
 	@SuppressWarnings( { "unchecked", "unchecked" })
 	public static void checkNull(final String id, Object arg)
@@ -33,7 +35,12 @@ public class Objects {
 
 	public static String safeToString(Object object) {
 		// TODO Auto-generated method stub
-		return object.toString();
+		return object==null? "null" : object.toString();
+	}
+
+	public static Object fastToString(ManagedObject object) {
+		// TODO Auto-generated method stub
+		return safeToString(object);
 	}
 
 }

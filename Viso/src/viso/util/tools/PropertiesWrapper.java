@@ -44,13 +44,22 @@ public class PropertiesWrapper {
 		throw new IllegalArgumentException(" the param "+arg0+" with value:"+value+" is not between "+min+" and "+max);
 	}
 
+	public <T> T getClassInstanceProperty(String arg0, Class<T> class1, Class<?>[] classes,
+			Object ...arg2) {
+		// TODO Auto-generated method stub
+		return getClassInstanceProperty(arg0, null, class1, classes, arg2);
+	}
+	
 	public <T> T getClassInstanceProperty(String arg0,
 			String default_, Class<T> class1, Class<?>[] classes,
 			Object ...arg2) {
 		// TODO Auto-generated method stub
 		Object obj;
 		try {
-			obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
+			if(default_!=null)
+				obj = Class.forName(properties.getProperty(arg0, default_)).getConstructor(classes).newInstance(arg2);
+			else
+				obj = Class.forName(properties.getProperty(arg0)).getConstructor(classes).newInstance(arg2);
 			return class1.cast(obj);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
