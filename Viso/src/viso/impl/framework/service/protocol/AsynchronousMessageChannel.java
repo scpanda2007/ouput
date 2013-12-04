@@ -212,14 +212,14 @@ public class AsynchronousMessageChannel implements Channel {
 				result.limit(messageLen);
 				result.position(PREFIX_LENGTH);
 				set(result.slice().asReadOnlyBuffer());
-				return true;
+				return true;//已经读完了
 			} else {
 				if (logger.isLoggable(Level.FINER)) {
 					logger.log(Level.FINER, "{0} read incomplete {1}:{2}",
 							this, messageLen, readBuffer.position());
 				}
 				channel.read(readBuffer, null, this);
-				return false;
+				return false;//还没读完
 			}
 		}
 

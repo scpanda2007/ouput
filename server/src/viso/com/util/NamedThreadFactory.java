@@ -19,7 +19,9 @@ public class NamedThreadFactory implements ThreadFactory{
 	@Override
 	public Thread newThread(Runnable arg0) {
 		// TODO Auto-generated method stub
-		return new Thread(arg0,name+"--"+counter.getAndIncrement());
+		String tname = name+"--"+counter.getAndIncrement();
+		System.out.println("create thread-"+tname);
+		return new Thread(arg0,tname);
 	}
 
 }

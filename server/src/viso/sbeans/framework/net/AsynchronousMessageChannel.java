@@ -4,7 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
-import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.Channel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.Callable;
@@ -73,8 +72,9 @@ public class AsynchronousMessageChannel implements Channel{
 		
 		@Override
 		public void completed(Integer arg0, Void arg1) {
-			if(arg0<0){
-				setException(new EOFException(" message incomplete.. "));
+			
+			if(arg0 < 0){
+				setException(new EOFException("incomplete message"));
 				return;
 			}
 			
@@ -87,9 +87,11 @@ public class AsynchronousMessageChannel implements Channel{
 			}
 			if(messageLength>0 && readBuffer.position()>=messageLength ){
 				ByteBuffer result = readBuffer.duplicate();
-				result.limit(messageLength);
-				result.position(kPrefixLength);
-				set(new MessageBuffer(result.slice().array()));
+				int length = messageLength - kPrefixLength;
+				byte payload[] = new byte[length];
+				result.limit(messageLength).position(kPrefixLength);
+				result.get(payload);
+				set(new MessageBuffer(payload));
 				return;
 			}
 			channel.read(readBuffer, null, this);
@@ -115,7 +117,7 @@ public class AsynchronousMessageChannel implements Channel{
 				} catch (ExecutionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-					if(e.getCause() instanceof AsynchronousCloseException){
+					if(e.getCause() instanceof EOFException){
 						try {
 							close();
 						} catch (IOException e1) {
@@ -158,6 +160,7 @@ public class AsynchronousMessageChannel implements Channel{
 			waitSize.putShort(len);
 			waitSize.put(sendbuffer);
 			waitSize.flip();
+			
 			this.handler = handler;
 		}
 		
@@ -184,6 +187,7 @@ public class AsynchronousMessageChannel implements Channel{
 		
 		@Override
 		public void done(){
+			isWriting.set(false);
 			if(handler!=null){
 				try {
 					handler.completed(this.get(), null);

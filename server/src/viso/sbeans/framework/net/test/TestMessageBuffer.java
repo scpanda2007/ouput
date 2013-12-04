@@ -1,6 +1,7 @@
 package viso.sbeans.framework.net.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
@@ -17,6 +18,8 @@ public class TestMessageBuffer {
 	private int checkInt = (int)0x0a0b0c0d;
 	private long checkLong = (long) 0x0a0b0c0d0e0f0a0bl;
 	
+	private final String checkString = "0a0b0c0d0f0a0b";
+	
 	private MessageBuffer message;
 	
 	@Before
@@ -28,6 +31,13 @@ public class TestMessageBuffer {
 	@After
 	public void tearDown(){
 		
+	}
+	
+	@Test
+	public void testCheckUTF(){
+		message.writeUTF(checkString);
+		message.flip();
+		assertTrue(message.readUTF().equals(checkString));
 	}
 	
 	@Test
