@@ -49,80 +49,92 @@ public class AsynchronousMessageChannel implements Channel{
 		
 		private int messageLength = -1;
 		
+		private final Object lock = new Object();
+		
 		public Reader(CompletionHandler<MessageBuffer,Void> handler) {
 			super(new FailtureCallable<MessageBuffer>());
 			// TODO Auto-generated constructor stub
 			this.handler = handler;
 		}
 
-		public Future<MessageBuffer> start(){
-			if(readBuffer.position()>0){
-				int len = messageLength();
-				if(readBuffer.position()>len){
-					readBuffer.limit(readBuffer.position());
-					readBuffer.position(len);
-					readBuffer.compact();
-				}else{
-					readBuffer.clear();
+		public Future<MessageBuffer> start() {
+			synchronized (lock) {
+				if (readBuffer.position() > 0) {
+					int len = messageLength();
+					if (readBuffer.position() > len) {
+						readBuffer.limit(readBuffer.position());
+						readBuffer.position(len);
+						readBuffer.compact();
+					} else {
+						readBuffer.clear();
+					}
 				}
+				channel.read(readBuffer, null, this);
+				return this;
 			}
-			channel.read(readBuffer, null, this);
-			return this;
 		}
 		
 		@Override
 		public void completed(Integer arg0, Void arg1) {
-			
-			if(arg0 < 0){
-				setException(new EOFException("incomplete message"));
-				return;
-			}
-			
-			// TODO Auto-generated method stub
-			if(messageLength==-1){
-				messageLength = messageLength();
-				if(messageLength>0 && readBuffer.limit()<messageLength){
-					setException(new IllegalStateException(" have not enough room for message."));
+			synchronized (lock) {
+				if(arg0 < 0){
+					setException(new EOFException("incomplete message"));
+					return;
 				}
+				System.out.println(" <<<<<<<<<<<<<<<<<<<<<<....");
+				// TODO Auto-generated method stub
+				if(messageLength==-1){
+					messageLength = messageLength();
+					if(messageLength>0 && readBuffer.limit()<messageLength){
+						System.out.println(" >>>>>>>>>>>>>>>>....");
+						setException(new IllegalStateException(" have not enough room for message."));
+					}
+				}
+				if(messageLength>0 && readBuffer.position()>=messageLength ){
+					ByteBuffer result = readBuffer.duplicate();
+					int length = messageLength - kPrefixLength;
+					byte payload[] = new byte[length];
+					result.limit(messageLength).position(kPrefixLength);
+					result.get(payload);
+					System.out.println(" package a message....");
+					set(new MessageBuffer(payload));
+					return;
+				}
+				channel.read(readBuffer, null, this);
 			}
-			if(messageLength>0 && readBuffer.position()>=messageLength ){
-				ByteBuffer result = readBuffer.duplicate();
-				int length = messageLength - kPrefixLength;
-				byte payload[] = new byte[length];
-				result.limit(messageLength).position(kPrefixLength);
-				result.get(payload);
-				set(new MessageBuffer(payload));
-				return;
-			}
-			channel.read(readBuffer, null, this);
 		}
 
 		@Override
 		public void failed(Throwable arg0, Void arg1) {
-			// TODO Auto-generated method stub
-			readBuffer.clear();
-			isReading.set(false);
-			setException(arg0);
+			synchronized (lock) {
+				// TODO Auto-generated method stub
+				readBuffer.clear();
+				isReading.set(false);
+				setException(arg0);
+			}
 		}
 		
 		@Override
-		public void done(){
-			isReading.set(false);
-			if(handler!=null){
-				try {
-					handler.completed(this.get(), null);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					if(e.getCause() instanceof EOFException){
-						try {
-							close();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+		public void done() {
+			synchronized (lock) {
+				isReading.set(false);
+				if (handler != null) {
+					try {
+						System.out.println(" get a message....");
+						handler.completed(this.get(), null);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						if (e.getCause() instanceof EOFException) {
+							try {
+								close();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
 					}
 				}
@@ -131,8 +143,10 @@ public class AsynchronousMessageChannel implements Channel{
 		
 		@Override
 		public boolean cancel(boolean arg0){
-			//当断开一个连接时
-			return super.cancel(arg0);
+			synchronized (lock) {
+				// 当断开一个连接时
+				return super.cancel(arg0);
+			}
 		}
 		
 	}
@@ -152,6 +166,8 @@ public class AsynchronousMessageChannel implements Channel{
 		
 		CompletionHandler<Void,Void> handler;
 		
+		private final Object lock = new Object();
+		
 		public Writer(ByteBuffer sendbuffer,CompletionHandler<Void,Void> handler) {
 			super(new FailtureCallable<Void>());
 			// TODO Auto-generated constructor stub
@@ -164,39 +180,47 @@ public class AsynchronousMessageChannel implements Channel{
 			this.handler = handler;
 		}
 		
-		public Future<Void> start(){
-			channel.write(waitSize, null, this);
-			return this;
+		public Future<Void> start() {
+			synchronized (lock) {
+				channel.write(waitSize, null, this);
+				return this;
+			}
 		}
 		
 		@Override
 		public void completed(Integer arg0, Void arg1) {
-			// TODO Auto-generated method stub
-			if(!waitSize.hasRemaining()){
-				set(null);
-				return;
+			synchronized (lock) {
+				// TODO Auto-generated method stub
+				if (!waitSize.hasRemaining()) {
+					set(null);
+					return;
+				}
+				channel.write(waitSize, null, this);
 			}
-			channel.write(waitSize, null, this);
 		}
 
 		@Override
 		public void failed(Throwable arg0, Void arg1) {
-			// TODO Auto-generated method stub
-			setException(arg0);
+			synchronized (lock) {
+				// TODO Auto-generated method stub
+				setException(arg0);
+			}
 		}
 		
 		@Override
-		public void done(){
-			isWriting.set(false);
-			if(handler!=null){
-				try {
-					handler.completed(this.get(), null);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+		public void done() {
+			synchronized (lock) {
+				isWriting.set(false);
+				if (handler != null) {
+					try {
+						handler.completed(this.get(), null);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ExecutionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		}

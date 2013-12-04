@@ -82,8 +82,10 @@ public class TestAsychronousMessageChannel {
 		server1.startServer();
 		server0.connect(server1.end);
 		try {
-			for (int i = 0; i < 1000; i += 1) {
-				server0.writeMessage("hello this is server0"+System.currentTimeMillis()).get();
+			for (int i = 0; i < 10; i += 1) {
+				String hello = "hello this is server0"+"["+i+"]"+System.currentTimeMillis();
+				server0.writeMessage(hello).get();
+				System.out.println("----"+hello);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -93,7 +95,26 @@ public class TestAsychronousMessageChannel {
 			e.printStackTrace();
 		}
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			for (int i = 0; i < 10; i += 1) {
+				String hello = "hello this is server0"+"["+(i+10)+"]"+System.currentTimeMillis();
+				server0.writeMessage(hello).get();
+				System.out.println("----"+hello);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -250,6 +271,13 @@ public class TestAsychronousMessageChannel {
 		public void completed(MessageBuffer result, Void attachment) {
 			// TODO Auto-generated method stub
 			this.server.putMessage(result);
+			try {
+				Thread.sleep(1000);//看是否能直接在这里进行操作
+				System.out.println("i am awake...");
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			channel.read(this);
 		}
 
