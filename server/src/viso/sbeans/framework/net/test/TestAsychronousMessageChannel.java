@@ -1,12 +1,15 @@
 package viso.sbeans.framework.net.test;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.channels.spi.AsynchronousChannelProvider;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,8 +40,24 @@ public class TestAsychronousMessageChannel {
 	
 	@After
 	public void tearDown(){
-		if(server0!=null)server0.shutDown();
-		if(server1!=null)server1.shutDown();
+		if(server0!=null){
+			server0.shutDown();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(server1!=null){
+			server1.shutDown();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Test
@@ -75,46 +94,124 @@ public class TestAsychronousMessageChannel {
 		}
 	}
 	
+	private class WriteMessageHandler implements CompletionHandler<Void,Void>{
+		
+		TestServer server;
+		AsynchronousMessageChannel channel;
+		int count;
+		int max;
+		public WriteMessageHandler(TestServer server,AsynchronousMessageChannel channel,int max){
+			this.max = max;
+			this.count = 0;
+			this.server = server;
+			this.channel = channel;
+		}
+		
+		@Override
+		public void completed(Void arg0, Void arg1) {
+			// TODO Auto-generated method stub
+			if(this.count<max){
+				String hello = "hello this is server0"+"["+this.count+"]"+System.currentTimeMillis();
+//				System.out.println("----"+hello);
+				this.count+=1;
+				server.writeMessage(hello);
+			}
+		}
+
+		@Override
+		public void failed(Throwable arg0, Void arg1) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
+	@Test
+	public void testWriteAndReceMont(){
+		server0.accept(new ConnectionHandler());
+		server1.accept(new ConnectionHandler());
+		server1.startServer();
+		server0.connect(server1.end);
+		String hello = "hello this is server0"+"[init]"+System.currentTimeMillis();
+		System.out.println("----"+hello);
+		server0.writeMessage(hello,100);//TODO: as a fact you should put this in completion handler;
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testMulti2One() {
+		server1.accept(new ConnectionHandler());
+		server1.startServer();
+		ArrayList<TestServer> clients = new ArrayList<TestServer>();
+		ArrayList<Future<Void>> waits = new ArrayList<Future<Void>>();
+		try {
+			
+			for (int i = 0; i < 1000; i += 1) {
+				TestServer client = new TestServer("client" + i);
+				clients.add(client);
+				waits.add(client.connectNoWait(server1.end));
+			}
+			
+			for(Future<Void> wait: waits){
+				wait.get();
+			}
+			
+			for (int i = 0; i < 1000; i += 1) {
+				TestServer client = clients.get(i);
+				String hello = "hello this is client" + "[" + i + "]"
+				+ System.currentTimeMillis();
+				System.out.println("----" + hello);
+				client.writeMessage(hello);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			Thread.sleep(1000);
+			System.out.println("close clients.........");
+			for (TestServer client : clients) {
+				client.shutDown();//同时关闭会产生大量的thread created in the group.
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testWriteAndReceMontWithDelay(){
+		server0.accept(new ConnectionHandler());
+		server1.accept(new ConnectionHandler());
+		server1.startServer();
+		server0.connect(server1.end);
+		String hello = "hello this is server0"+"[init]"+System.currentTimeMillis();
+		System.out.println("----"+hello);
+		server0.writeMessage(hello, 200);
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	@Test
 	public void testWriteAndReceALot(){
 		server0.accept(new ConnectionHandler());
 		server1.accept(new ConnectionHandler());
 		server1.startServer();
 		server0.connect(server1.end);
+		String hello = "hello this is server0"+"[init]"+System.currentTimeMillis();
+		System.out.println("----"+hello);
+		server0.writeMessage(hello, 1000);
 		try {
-			for (int i = 0; i < 10; i += 1) {
-				String hello = "hello this is server0"+"["+i+"]"+System.currentTimeMillis();
-				server0.writeMessage(hello).get();
-				System.out.println("----"+hello);
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			for (int i = 0; i < 10; i += 1) {
-				String hello = "hello this is server0"+"["+(i+10)+"]"+System.currentTimeMillis();
-				server0.writeMessage(hello).get();
-				System.out.println("----"+hello);
-			}
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			Thread.sleep(10000);
+			Thread.sleep(1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -132,6 +229,16 @@ public class TestAsychronousMessageChannel {
 		
 		private final String serverName;
 		
+		public TestServer(String serverName){
+			this.serverName = serverName;
+			try {
+				clientChannel = AsynchronousSocketChannel.open();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		public TestServer(String hostname, int port, String serverName) {
 			this.serverName = serverName;
 			end = new InetSocketAddress(hostname, port);
@@ -142,7 +249,8 @@ public class TestAsychronousMessageChannel {
 								Executors.newCachedThreadPool(new NamedThreadFactory(
 												"TestServer:" + serverName)), 1);
 				serverChannel = AsynchronousServerSocketChannel.open(group);
-				serverChannel.bind(end,1);
+				serverChannel.bind(end,10);
+//				serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, 32 * 1024);
 				clientChannel = AsynchronousSocketChannel.open(group);
 				executor = Executors.newScheduledThreadPool(
 						1, new NamedThreadFactory("ConnHandler:" + serverName));
@@ -182,7 +290,7 @@ public class TestAsychronousMessageChannel {
 		}
 		
 		public void shutDown(){
-			if (messageChannel != null && messageChannel.isOpen()) {
+			if (messageChannel!= null && messageChannel.isOpen()) {
 				try {
 					messageChannel.close();
 				} catch (IOException e) {
@@ -192,11 +300,14 @@ public class TestAsychronousMessageChannel {
 			}
 			
 			try {
-				if(serverChannel.isOpen())serverChannel.close();
+				if(serverChannel!=null && serverChannel.isOpen()){
+					serverChannel.close();
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 			if(group!=null && !group.isShutdown()){
 				try {
 					group.awaitTermination(1L, TimeUnit.SECONDS);
@@ -219,20 +330,36 @@ public class TestAsychronousMessageChannel {
 			serverChannel.accept(this, handler);
 		}
 		
+		public Future<Void> connectNoWait(InetSocketAddress endpoint){
+			messageChannel = new AsynchronousMessageChannel(clientChannel);
+			return clientChannel.connect(endpoint);
+		}
+		
 		public void connect(InetSocketAddress endpoint){
 			try {
 				clientChannel.connect(endpoint).get();
 				messageChannel = new AsynchronousMessageChannel(clientChannel);
-			} catch (InterruptedException | ExecutionException e) {
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (ExecutionException e){
+				e.printStackTrace();
 			}
+		}
+		
+		WriteMessageHandler handler;
+		
+		public Future<Void> writeMessage(String message, int max){
+			MessageBuffer buffer = new MessageBuffer(1024);
+			buffer.writeUTF(message);
+			handler = new WriteMessageHandler(this,messageChannel,max);
+			return messageChannel.write(buffer.flip().buffer(), handler);
 		}
 		
 		public Future<Void> writeMessage(String message){
 			MessageBuffer buffer = new MessageBuffer(1024);
 			buffer.writeUTF(message);
-			return messageChannel.write(buffer.flip().buffer(), null);
+			return messageChannel.write(buffer.flip().buffer(), handler);
 		}
 		
 		//////////////////////////////////////////////////////////////////////
@@ -256,6 +383,8 @@ public class TestAsychronousMessageChannel {
 		}
 	}
 	
+	AtomicInteger count = new AtomicInteger(0);
+	
 	private class SessionMessageHandler implements CompletionHandler<MessageBuffer, Void>{
 
 		final AsynchronousMessageChannel channel;
@@ -271,20 +400,23 @@ public class TestAsychronousMessageChannel {
 		public void completed(MessageBuffer result, Void attachment) {
 			// TODO Auto-generated method stub
 			this.server.putMessage(result);
-			try {
-				Thread.sleep(1000);//看是否能直接在这里进行操作
-				System.out.println("i am awake...");
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			System.out.println("register read.	"+count.getAndIncrement());
 			channel.read(this);
 		}
 
 		@Override
 		public void failed(Throwable exc, Void attachment) {
 			// TODO Auto-generated method stub
-			
+			if (exc instanceof EOFException) {
+				try {
+					if(channel!=null && channel.isOpen())channel.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else{
+				exc.printStackTrace();
+			}
 		}
 		
 	}
@@ -313,12 +445,12 @@ public class TestAsychronousMessageChannel {
 			}
 			AsynchronousMessageChannel channel = new AsynchronousMessageChannel(arg0);
 			server.newConnection(channel);
+			server.accept(this);
 		}
 
 		@Override
 		public void failed(Throwable arg0, TestServer server) {
 			// TODO Auto-generated method stub
-			
 		}
 		
 	}

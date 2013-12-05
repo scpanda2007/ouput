@@ -2,6 +2,7 @@ package viso.sbeans.framework.net;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.Channel;
@@ -18,7 +19,7 @@ public class AsynchronousMessageChannel implements Channel{
 	
 	AsynchronousByteChannel channel;
 	
-	private static final int kBufferSize = 1024*10;
+	private static final int kBufferSize = 1024*128;
 	
 	private static final int kPrefixLength = 2;
 	
@@ -59,6 +60,7 @@ public class AsynchronousMessageChannel implements Channel{
 
 		public Future<MessageBuffer> start() {
 			synchronized (lock) {
+				if(isDone())return this;
 				if (readBuffer.position() > 0) {
 					int len = messageLength();
 					if (readBuffer.position() > len) {
@@ -77,17 +79,19 @@ public class AsynchronousMessageChannel implements Channel{
 		@Override
 		public void completed(Integer arg0, Void arg1) {
 			synchronized (lock) {
-				if(arg0 < 0){
+				if(isDone())return;
+				if(arg0.intValue() < 0){
 					setException(new EOFException("incomplete message"));
+					//但是此时有可能有一部分的数据还没从buffer中读完,对面的端口就关掉了 这个地方会以高优先级立即返回 那么就只读到了一部分的信息
+					//同时如果大量用户同时close的话group就会生成很多并发thread来响应关闭
 					return;
 				}
-				System.out.println(" <<<<<<<<<<<<<<<<<<<<<<....");
 				// TODO Auto-generated method stub
 				if(messageLength==-1){
 					messageLength = messageLength();
 					if(messageLength>0 && readBuffer.limit()<messageLength){
-						System.out.println(" >>>>>>>>>>>>>>>>....");
-						setException(new IllegalStateException(" have not enough room for message."));
+						setException(new BufferOverflowException());
+						return;
 					}
 				}
 				if(messageLength>0 && readBuffer.position()>=messageLength ){
@@ -96,11 +100,10 @@ public class AsynchronousMessageChannel implements Channel{
 					byte payload[] = new byte[length];
 					result.limit(messageLength).position(kPrefixLength);
 					result.get(payload);
-					System.out.println(" package a message....");
 					set(new MessageBuffer(payload));
 					return;
 				}
-				channel.read(readBuffer, null, this);
+				channel.read(readBuffer, null, this);//channel关闭后如何处理?
 			}
 		}
 
@@ -108,8 +111,8 @@ public class AsynchronousMessageChannel implements Channel{
 		public void failed(Throwable arg0, Void arg1) {
 			synchronized (lock) {
 				// TODO Auto-generated method stub
-				readBuffer.clear();
-				isReading.set(false);
+//				readBuffer.clear();
+//				isReading.set(false);
 				setException(arg0);
 			}
 		}
@@ -120,22 +123,13 @@ public class AsynchronousMessageChannel implements Channel{
 				isReading.set(false);
 				if (handler != null) {
 					try {
-						System.out.println(" get a message....");
 						handler.completed(this.get(), null);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						setException(e);
 					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						if (e.getCause() instanceof EOFException) {
-							try {
-								close();
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
+						setException(e.getCause()==null?e:e.getCause());
+					} catch (Throwable t){
+						setException(t);
 					}
 				}
 			}
@@ -176,7 +170,6 @@ public class AsynchronousMessageChannel implements Channel{
 			waitSize.putShort(len);
 			waitSize.put(sendbuffer);
 			waitSize.flip();
-			
 			this.handler = handler;
 		}
 		
@@ -215,11 +208,11 @@ public class AsynchronousMessageChannel implements Channel{
 					try {
 						handler.completed(this.get(), null);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						setException(e);
 					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						setException(e.getCause()==null?e:e.getCause());
+					} catch (Throwable t){
+						setException(t);
 					}
 				}
 			}
