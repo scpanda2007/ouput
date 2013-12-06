@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 
 import viso.sbeans.framework.net.AsynchronousMessageChannel;
 import viso.sbeans.framework.net.MessageBuffer;
+import viso.sbeans.framework.protocol.ProtocolHeader;
 
 public class DummyClient{
 	
@@ -19,16 +20,43 @@ public class DummyClient{
 		this.name = name;
 	}
 	
+	public Future<Void> writeProtocolMessage(String message,int max){
+		MessageBuffer sendBuffer = new MessageBuffer(1024);
+		sendBuffer.writeByte(ProtocolHeader.kSessionMsg);
+		sendBuffer.writeUTF(message);
+		return channel.write(sendBuffer.flip().buffer(), new ClientProtocolWriter(this,max));
+	}
+	
+	public Future<Void> writeProtocolMessage(String message){
+		MessageBuffer sendBuffer = new MessageBuffer(1024);
+		sendBuffer.writeByte(ProtocolHeader.kSessionMsg);
+		sendBuffer.writeUTF(message);
+		return channel.write(sendBuffer.flip().buffer(), null);
+	}
+	
+	public Future<Void> writeLogin(){
+		MessageBuffer sendBuffer = new MessageBuffer(1024);
+		sendBuffer.writeByte(ProtocolHeader.kLogin);
+		return channel.write(sendBuffer.flip().buffer(), null);
+	}
+	
+	public Future<Void> writeMessage(String message, ClientProtocolWriter writer){
+		MessageBuffer sendBuffer = new MessageBuffer(1024);
+		sendBuffer.writeByte(ProtocolHeader.kSessionMsg);
+		sendBuffer.writeUTF(message);
+		return channel.write(sendBuffer.flip().buffer(), writer);
+	}
+	
+	public Future<Void> writeProtocolMessage(String message, ClientWriter writer){
+		MessageBuffer sendBuffer = new MessageBuffer(1024);
+		sendBuffer.writeUTF(message);
+		return channel.write(sendBuffer.flip().buffer(), writer);
+	}
+	
 	public Future<Void> writeMessage(String message,int max){
 		MessageBuffer sendBuffer = new MessageBuffer(1024);
 		sendBuffer.writeUTF(message);
 		return channel.write(sendBuffer.flip().buffer(), new ClientWriter(this,max));
-	}
-	
-	public Future<Void> writeMessage(String message,ClientWriter writer){
-		MessageBuffer sendBuffer = new MessageBuffer(1024);
-		sendBuffer.writeUTF(message);
-		return channel.write(sendBuffer.flip().buffer(), writer);
 	}
 	
 	public Future<Void> writeMessage(String message){
@@ -75,6 +103,32 @@ public class DummyClient{
 	}
 }
 
+class ClientProtocolWriter implements CompletionHandler<Void,Void>{
+	DummyClient client;
+	int max;
+	int count;
+	public ClientProtocolWriter(DummyClient client,int max){
+		this.client = client;
+		this.max = max;
+		this.count = 0;
+	}
+	
+	@Override
+	public void completed(Void arg0, Void arg1) {
+		// TODO Auto-generated method stub
+		if(this.count < max){
+			this.count += 1;
+			String msg = "["+client.name+"] hello this my "+count+"rd mssage-"+System.currentTimeMillis();
+			client.writeMessage(msg,this);
+		}
+	}
+	
+	@Override
+	public void failed(Throwable arg0, Void arg1) {
+		// TODO Auto-generated method stub
+	}
+}
+
 class ClientWriter implements CompletionHandler<Void,Void>{
 	
 	DummyClient client;
@@ -92,7 +146,7 @@ class ClientWriter implements CompletionHandler<Void,Void>{
 		if(this.count < max){
 			this.count += 1;
 			String msg = "["+client.name+"] hello this my "+count+"rd mssage-"+System.currentTimeMillis();
-			client.writeMessage(msg,this);
+			client.writeProtocolMessage(msg,this);
 		}
 	}
 	

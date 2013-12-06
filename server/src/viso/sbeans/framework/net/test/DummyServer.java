@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import viso.com.util.NamedThreadFactory;
 import viso.sbeans.framework.net.MessageBuffer;
@@ -25,11 +26,11 @@ public class DummyServer {
 	ExecutorService executor;
 	ProtocolHandler proHandler;
 	
-	public DummyServer(String host,int port,String name){
+	public DummyServer(String host,int port, String name){
 		checkNull("name",name);
 		Properties property = new Properties();
 		property.setProperty(TcpTransport.ADD_HOST, host);
-		property.setProperty(TcpTransport.ADD_PORT, host);
+		property.setProperty(TcpTransport.ADD_PORT, new Integer(port).toString());
 		acceptor = new ProtocolAcceptor(property);
 		executor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("DummyServer:"+name));
 	}
@@ -41,12 +42,15 @@ public class DummyServer {
 	private BlockingQueue<MessageBuffer> messages = new LinkedBlockingQueue<MessageBuffer>();
 	
 	private class DummySessionAcceptor implements SessionProtocolAcceptor{
-
+		
+		AtomicInteger counter = new AtomicInteger(0);
+		
 		@Override
 		public void LoginNow(ProtocolHandler handler,
 				RequestCompletion<SessionProtocolHandler> request) {
 			// TODO Auto-generated method stub
 			proHandler = handler;
+			System.out.println("["+System.currentTimeMillis()+"] rece a login request "+counter.getAndIncrement());
 			request.completed(new DummySessionHandler());
 		}
 		
@@ -72,6 +76,7 @@ public class DummyServer {
 		if(running){
 			throw new IllegalStateException(" already run. ");
 		}
+		running = true;
 		executor.submit(new MessageConsumer());
 	}
 	

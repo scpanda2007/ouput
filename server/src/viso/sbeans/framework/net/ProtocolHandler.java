@@ -72,7 +72,7 @@ public class ProtocolHandler {
 				sessionHandler.handleSessionMessage(message,
 						new SessionMessageComplete());
 			}else{
-				//drop the message.
+				//drop the message. and no need to read..
 			}
 		}
 			;

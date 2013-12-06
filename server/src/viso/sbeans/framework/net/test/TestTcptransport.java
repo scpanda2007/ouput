@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -152,7 +153,10 @@ public class TestTcptransport {
 		
 		TestServer(String name,String hostname,int port){
 			this.name = name;
-			transport = new TcpTransport(hostname,port);
+			Properties property = new Properties();
+			property.setProperty(TcpTransport.ADD_HOST, hostname);
+			property.setProperty(TcpTransport.ADD_PORT, new Integer(port).toString());
+			transport = new TcpTransport(property);
 		}
 		
 		@Override

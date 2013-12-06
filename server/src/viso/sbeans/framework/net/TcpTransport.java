@@ -2,6 +2,7 @@ package viso.sbeans.framework.net;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.AcceptPendingException;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -36,32 +37,7 @@ public class TcpTransport {
 	public static final String kDefaultHost = "127.0.0.1";
 	public static final int kDefaultPort = 22345;
 	
-	public TcpTransport(String hostname, int port){
-		try {
-			group = AsynchronousChannelProvider
-					.provider()
-					.openAsynchronousChannelGroup(
-							Executors.newCachedThreadPool(new NamedThreadFactory(
-											"tcp-transport")), 1);
-			listenAddress = new InetSocketAddress(hostname==null?"127.0.0.1":hostname, port);
-			try {
-				acceptor = AsynchronousChannelProvider.provider()
-				.openAsynchronousServerSocketChannel(group);
-				acceptor.bind(listenAddress, 1);
-			} catch (Exception ex) {
-				try {
-					acceptor.close();
-				} catch (IOException e2) {
-					e2.printStackTrace();
-				}
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-	}
-	
-	TcpTransport(Properties property){
+	public TcpTransport(Properties property){
 		try {
 			group = AsynchronousChannelProvider
 					.provider()
@@ -70,12 +46,13 @@ public class TcpTransport {
 											"tcp-transport")), 1);
 			PropertiesWrapper properties = new PropertiesWrapper(property);
 			String hostname = properties.getProperty(ADD_HOST, kDefaultHost);
-			int port = properties.getIntProperty(kDefaultHost, kDefaultPort, 0, 65535);
+			int port = properties.getIntProperty(ADD_PORT, kDefaultPort, 0, 65535);
+			System.out.println("host :: "+hostname+" port :: "+port);
 			listenAddress = new InetSocketAddress(hostname, port);
 			try {
 				acceptor = AsynchronousChannelProvider.provider()
 				.openAsynchronousServerSocketChannel(group);
-				acceptor.bind(listenAddress, 1);
+				acceptor.bind(listenAddress, 0);
 			} catch (Exception ex) {
 				try {
 					acceptor.close();
@@ -94,11 +71,11 @@ public class TcpTransport {
 	//¿ªÊ¼½ÓÌý
 	public void accept(ConnectionListener listener){
 		checkNull("listener",listener);
-		if(this.connHandler!=null){
-			throw new IllegalStateException(" the transport already accept.");
-		}
 		if(!acceptor.isOpen()){
 			throw new IllegalStateException(" the acceptor is not open");
+		}
+		if(this.connHandler!=null){
+			throw new AcceptPendingException();
 		}
 		this.connHandler = new ConnectionHandler(listener);
 		acceptor.accept(null, this.connHandler);
