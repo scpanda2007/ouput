@@ -2,7 +2,6 @@ package viso.sbeans.framework.net.test;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -13,34 +12,33 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import viso.sbeans.framework.net.AsynchronousMessageChannel;
-import viso.sbeans.framework.net.ConnectionListener;
 import viso.sbeans.framework.net.MessageBuffer;
 import viso.sbeans.framework.net.TcpTransport;
+import viso.sbeans.framework.net.TcpTransport.ConnectionListener;
 import viso.com.util.NamedThreadFactory;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.fail;
 
 public class TestTcptransport {
 	
 	TestServer server;
 	InetSocketAddress serverAddress;
-	ArrayList<TestClient> clients;
+	ArrayList<DummyClient> clients;
 	
 	
 	@Before
 	public void setUp(){
 		server = new TestServer("server","127.0.0.1", 12345);
 		serverAddress = new InetSocketAddress("127.0.0.1",12345);
-		clients = new ArrayList<TestClient>();
+		clients = new ArrayList<DummyClient>();
 	}
 	
 	
 	@After
 	public void tearDown(){
-		for(TestClient client : clients){
+		for(DummyClient client : clients){
 			client.shutdown();
 		}
 		server.shutdownMe();
@@ -54,7 +52,7 @@ public class TestTcptransport {
 	
 	public void createTestClient(int number){
 		for(int i=0;i<number;i+=1){
-			TestClient client = new TestClient("client["+i+"]");
+			DummyClient client = new DummyClient("client["+i+"]");
 			clients.add(client);
 		}
 	}
@@ -62,7 +60,7 @@ public class TestTcptransport {
 	@Test
 	public void testAccept(){
 		createTestClient(1);
-		TestClient client = clients.get(0);
+		DummyClient client = clients.get(0);
 		server.startService();
 		client.connectAndWait(serverAddress);
 	}
@@ -70,7 +68,7 @@ public class TestTcptransport {
 	@Test
 	public void testRecieveMessage(){
 		createTestClient(1);
-		TestClient client = clients.get(0);
+		DummyClient client = clients.get(0);
 		server.startService();
 		client.connectAndWait(serverAddress);
 		client.writeMessage("client["+0+"] start send mssage--", 100);
@@ -83,12 +81,39 @@ public class TestTcptransport {
 	}
 	
 	@Test
+	public void testMultiConnect(){
+		createTestClient(1000);
+		server.startService();
+		ArrayList<Future<Void>> waitConnects = new ArrayList<Future<Void>>();
+		try {
+			for (DummyClient client : clients) {
+				waitConnects.add(client.connectNoWait(serverAddress));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			for (Future<Void> wait : waitConnects) {
+				wait.get();
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
+	
+	@Test
 	public void testMulti2One() {
 		createTestClient(1000);
 		server.startService();
 		ArrayList<Future<Void>> waitConnects = new ArrayList<Future<Void>>();
 		try {
-			for (TestClient client : clients) {
+			for (DummyClient client : clients) {
 				waitConnects.add(client.connectNoWait(serverAddress));
 			}
 		} catch (IOException e) {
@@ -108,7 +133,7 @@ public class TestTcptransport {
 			e.printStackTrace();
 		}
 		
-		for (TestClient client : clients) {
+		for (DummyClient client : clients) {
 			client.writeMessage("client["+0+"] start send mssage--", 100);
 		}
 		
@@ -218,96 +243,4 @@ public class TestTcptransport {
 		
 	}
 	
-	private class TestClient{
-		AsynchronousSocketChannel orgchannel;
-		AsynchronousMessageChannel channel;
-		String name;
-		TestClient(String name){
-			this.name = name;
-		}
-		
-		public Future<Void> writeMessage(String message,int max){
-			MessageBuffer sendBuffer = new MessageBuffer(1024);
-			sendBuffer.writeUTF(message);
-			return channel.write(sendBuffer.flip().buffer(), new ClientWriter(this,max));
-		}
-		
-		public Future<Void> writeMessage(String message,ClientWriter writer){
-			MessageBuffer sendBuffer = new MessageBuffer(1024);
-			sendBuffer.writeUTF(message);
-			return channel.write(sendBuffer.flip().buffer(), writer);
-		}
-		
-		public Future<Void> writeMessage(String message){
-			MessageBuffer sendBuffer = new MessageBuffer(1024);
-			sendBuffer.writeUTF(message);
-			return channel.write(sendBuffer.flip().buffer(), null);
-		}
-		
-		public void shutdown(){
-			if(this.channel!=null && this.channel.isOpen()){
-				try {
-					this.channel.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		public void connectAndWait(InetSocketAddress end){
-			try {
-				this.orgchannel = AsynchronousSocketChannel.open();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				this.orgchannel.connect(end).get();
-				this.channel = new AsynchronousMessageChannel(this.orgchannel);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			this.channel = new AsynchronousMessageChannel(this.orgchannel);
-		}
-		
-		public Future<Void> connectNoWait(InetSocketAddress end) throws IOException{
-			this.orgchannel = AsynchronousSocketChannel.open();
-			this.channel = new AsynchronousMessageChannel(this.orgchannel);
-			return this.orgchannel.connect(end);
-		}
-	}
-	
-	private class ClientWriter implements CompletionHandler<Void,Void>{
-		
-		TestClient client;
-		int max;
-		int count;
-		public ClientWriter(TestClient client,int max){
-			this.client = client;
-			this.max = max;
-			this.count = 0;
-		}
-		
-		@Override
-		public void completed(Void arg0, Void arg1) {
-			// TODO Auto-generated method stub
-			if(this.count < max){
-				this.count += 1;
-				String msg = "["+client.name+"] hello this my "+count+"rd mssage-"+System.currentTimeMillis();
-//				System.out.println("send : "+msg);
-				client.writeMessage(msg,this);
-			}
-		}
-		
-		@Override
-		public void failed(Throwable arg0, Void arg1) {
-			// TODO Auto-generated method stub
-		}
-		
-	}
 }

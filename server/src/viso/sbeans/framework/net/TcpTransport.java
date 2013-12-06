@@ -14,12 +14,27 @@ import java.util.concurrent.TimeUnit;
 
 import static viso.com.util.Objects.checkNull;
 import viso.com.util.NamedThreadFactory;
+import viso.com.util.PropertiesWrapper;
 
 public class TcpTransport {
+	
+	public interface ConnectionListener {
+		/**tcp层收到一条新的连接时*/
+		public void newConnection(AsynchronousMessageChannel channel) throws Exception;
+		/**tcp层关闭时*/
+		public void shutdown();
+	}
 	
 	AsynchronousServerSocketChannel acceptor;//服务器侦听
 	AsynchronousChannelGroup group;
 	InetSocketAddress listenAddress;//侦听地址
+	
+	public static final String PKG_NAME = "viso.sbeans.framework.net.tcp";
+	public static final String ADD_HOST = PKG_NAME+"host";
+	public static final String ADD_PORT = PKG_NAME+"port"; 
+	
+	public static final String kDefaultHost = "127.0.0.1";
+	public static final int kDefaultPort = 22345;
 	
 	public TcpTransport(String hostname, int port){
 		try {
@@ -53,7 +68,10 @@ public class TcpTransport {
 					.openAsynchronousChannelGroup(
 							Executors.newCachedThreadPool(new NamedThreadFactory(
 											"tcp-transport")), 1);
-			listenAddress = new InetSocketAddress("127.0.0.1", 12345);
+			PropertiesWrapper properties = new PropertiesWrapper(property);
+			String hostname = properties.getProperty(ADD_HOST, kDefaultHost);
+			int port = properties.getIntProperty(kDefaultHost, kDefaultPort, 0, 65535);
+			listenAddress = new InetSocketAddress(hostname, port);
 			try {
 				acceptor = AsynchronousChannelProvider.provider()
 				.openAsynchronousServerSocketChannel(group);

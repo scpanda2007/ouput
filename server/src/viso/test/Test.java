@@ -3,6 +3,7 @@ package viso.test;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Test {
 	
@@ -19,6 +20,38 @@ public class Test {
 		}
 	}
 	
+	public static void printACos(int from,int to,int inc){
+		ArrayList<Integer> angles = new ArrayList<Integer>();
+		for(int i=from;i<=to;i+=inc){
+			double radio = Math.acos(1.0f*i/100);
+			angles.add(new Double(radio*180/Math.PI).intValue());
+		}
+		StringBuffer buffer = new StringBuffer();
+		for(int i=0;i<angles.size();i+=1){
+			if(i>0){
+				buffer.append(",");
+			}
+			buffer.append(""+angles.get(i).intValue());
+		}
+		System.out.println(buffer.toString());
+	}
+	
+	public static void printCos(int from,int to,int inc){
+		ArrayList<Integer> angles = new ArrayList<Integer>();
+		for(int i=from;i<=to;i+=inc){
+			angles.add(new Double(Math.cos(i*2*Math.PI/360)*1000).intValue());
+		}
+		StringBuffer buffer = new StringBuffer();
+		for(int i=0;i<angles.size();i+=1){
+			if(i>0){
+				buffer.append(",");
+			}
+			buffer.append(""+angles.get(i).intValue());
+		}
+		System.out.println(buffer.toString());
+	}
+	
 	public static void main(String args[]){
+		System.out.println(""+Math.acos(1.90f-1.0f));
 	}
 }
