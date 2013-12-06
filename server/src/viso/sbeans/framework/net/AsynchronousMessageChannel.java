@@ -14,12 +14,13 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static viso.com.util.Objects.checkNull;
-
+//这里还有个需要注意的地方，就是decode出来的消息的派发给业务处理器工作最好交给一个线程池来处理
+//，避免阻塞group绑定的线程池。
 public class AsynchronousMessageChannel implements Channel{
 	
 	AsynchronousByteChannel channel;
 	
-	private static final int kBufferSize = 1024*128;
+	private static final int kBufferSize = 1024*10;
 	
 	private static final int kPrefixLength = 2;
 	
@@ -40,7 +41,7 @@ public class AsynchronousMessageChannel implements Channel{
 	}
 	
 	private int messageLength(){
-		if(readBuffer.remaining() < kPrefixLength)return -1;
+		if(readBuffer.position() < kPrefixLength)return -1;
 		return (readBuffer.getShort(0) & 0xffff) + kPrefixLength;
 	}
 	
@@ -71,9 +72,34 @@ public class AsynchronousMessageChannel implements Channel{
 						readBuffer.clear();
 					}
 				}
-				channel.read(readBuffer, null, this);
+				processBuffer();
 				return this;
 			}
+		}
+		
+		public void processBuffer(){
+			// TODO Auto-generated method stub
+			if(messageLength==-1){
+				messageLength = messageLength();
+				if(messageLength>0 && readBuffer.limit()<messageLength){
+					setException(new BufferOverflowException());
+					return;
+				}
+			}
+			if(messageLength>0 && readBuffer.position()>=messageLength ){
+				ByteBuffer result = readBuffer.duplicate();
+				result.limit(messageLength);
+				result.position(kPrefixLength);
+				ByteBuffer message = result.slice().asReadOnlyBuffer();
+				byte payload[] = new byte[message.remaining()];
+				message.get(payload);
+				set(new MessageBuffer(payload));
+				return;
+			}
+			channel.read(readBuffer, null, this);
+			//己方channel关闭后如何处理，这里会直接抛出一个ClosedException
+			//对方channel关闭后，这里会收到一个-1的通知，但是如果底层对方的数据还未发完就被强行关闭
+			//，还想去读时，这里会抛出一个IOException
 		}
 		
 		@Override
@@ -84,26 +110,10 @@ public class AsynchronousMessageChannel implements Channel{
 					setException(new EOFException("incomplete message"));
 					//但是此时有可能有一部分的数据还没从buffer中读完,对面的端口就关掉了 这个地方会以高优先级立即返回 那么就只读到了一部分的信息
 					//同时如果大量用户同时close的话group就会生成很多并发thread来响应关闭
+					//TODO: 测试里添加异常测试
 					return;
 				}
-				// TODO Auto-generated method stub
-				if(messageLength==-1){
-					messageLength = messageLength();
-					if(messageLength>0 && readBuffer.limit()<messageLength){
-						setException(new BufferOverflowException());
-						return;
-					}
-				}
-				if(messageLength>0 && readBuffer.position()>=messageLength ){
-					ByteBuffer result = readBuffer.duplicate();
-					int length = messageLength - kPrefixLength;
-					byte payload[] = new byte[length];
-					result.limit(messageLength).position(kPrefixLength);
-					result.get(payload);
-					set(new MessageBuffer(payload));
-					return;
-				}
-				channel.read(readBuffer, null, this);//channel关闭后如何处理?
+				processBuffer();
 			}
 		}
 
@@ -196,6 +206,10 @@ public class AsynchronousMessageChannel implements Channel{
 		public void failed(Throwable arg0, Void arg1) {
 			synchronized (lock) {
 				// TODO Auto-generated method stub
+//				arg0.printStackTrace();
+				//TODO: 测试里添加异常测试 己方未发完数据 就强制关闭，
+				//这里会生成一个AyschronousCloseException
+				//对方关闭 未测试
 				setException(arg0);
 			}
 		}

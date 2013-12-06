@@ -21,6 +21,7 @@ import viso.com.util.NamedThreadFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.fail;
 
 public class TestTcptransport {
 	
@@ -81,6 +82,45 @@ public class TestTcptransport {
 		}
 	}
 	
+	@Test
+	public void testMulti2One() {
+		createTestClient(1000);
+		server.startService();
+		ArrayList<Future<Void>> waitConnects = new ArrayList<Future<Void>>();
+		try {
+			for (TestClient client : clients) {
+				waitConnects.add(client.connectNoWait(serverAddress));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			for (Future<Void> wait : waitConnects) {
+				wait.get();
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for (TestClient client : clients) {
+			client.writeMessage("client["+0+"] start send mssage--", 100);
+		}
+		
+		try {
+			Thread.sleep(10000);
+			System.out.println("-----------------------------------");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	private class TestServer implements ConnectionListener{
 		TcpTransport transport;
 		String name;
@@ -109,9 +149,11 @@ public class TestTcptransport {
 			executor.shutdown();
 		}
 		
-		public void shutdownMe(){
+		public void shutdownMe() {
 			running = false;
 			transport.shutdown();
+			if (executor == null || executor.isShutdown())
+				return;
 			executor.shutdown();
 		}
 		
@@ -222,6 +264,7 @@ public class TestTcptransport {
 			}
 			try {
 				this.orgchannel.connect(end).get();
+				this.channel = new AsynchronousMessageChannel(this.orgchannel);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -234,6 +277,7 @@ public class TestTcptransport {
 		
 		public Future<Void> connectNoWait(InetSocketAddress end) throws IOException{
 			this.orgchannel = AsynchronousSocketChannel.open();
+			this.channel = new AsynchronousMessageChannel(this.orgchannel);
 			return this.orgchannel.connect(end);
 		}
 	}

@@ -3,7 +3,6 @@ package viso.sbeans.framework.net.test;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
@@ -114,7 +113,7 @@ public class TestAsychronousMessageChannel {
 				String hello = "hello this is server0"+"["+this.count+"]"+System.currentTimeMillis();
 //				System.out.println("----"+hello);
 				this.count+=1;
-				server.writeMessage(hello);
+				server.writeMessageBig(hello);
 			}
 		}
 
@@ -134,7 +133,7 @@ public class TestAsychronousMessageChannel {
 		server0.connect(server1.end);
 		String hello = "hello this is server0"+"[init]"+System.currentTimeMillis();
 		System.out.println("----"+hello);
-		server0.writeMessage(hello,100);//TODO: as a fact you should put this in completion handler;
+		server0.writeMessage(hello,1000);//TODO: as a fact you should put this in completion handler;
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
@@ -145,7 +144,7 @@ public class TestAsychronousMessageChannel {
 	
 	@Test
 	public void testMulti2One() {
-		server1.accept(new ConnectionHandler());
+		server1.accept(new DelayedConnectionHandler());
 		server1.startServer();
 		ArrayList<TestServer> clients = new ArrayList<TestServer>();
 		ArrayList<Future<Void>> waits = new ArrayList<Future<Void>>();
@@ -166,15 +165,15 @@ public class TestAsychronousMessageChannel {
 				String hello = "hello this is client" + "[" + i + "]"
 				+ System.currentTimeMillis();
 				System.out.println("----" + hello);
-				client.writeMessage(hello);
+				client.writeMessageBig(hello,1000);
 			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		try {
-			Thread.sleep(1000);
-			System.out.println("close clients.........");
+			System.err.println("close clients.........####################################");
+			Thread.sleep(20000);
 			for (TestServer client : clients) {
 				client.shutDown();//同时关闭会产生大量的thread created in the group.
 			}
@@ -204,14 +203,21 @@ public class TestAsychronousMessageChannel {
 	@Test
 	public void testWriteAndReceALot(){
 		server0.accept(new ConnectionHandler());
-		server1.accept(new ConnectionHandler());
+		server1.accept(new DelayedConnectionHandler());
 		server1.startServer();
 		server0.connect(server1.end);
 		String hello = "hello this is server0"+"[init]"+System.currentTimeMillis();
 		System.out.println("----"+hello);
-		server0.writeMessage(hello, 1000);
+		server0.writeMessageBig(hello, 10);
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(1000);//2000 下会收到到一个-1,但是1000却没有
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		server0.shutDown();
+		try {
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -252,8 +258,7 @@ public class TestAsychronousMessageChannel {
 				serverChannel.bind(end,10);
 //				serverChannel.setOption(StandardSocketOptions.SO_RCVBUF, 32 * 1024);
 				clientChannel = AsynchronousSocketChannel.open(group);
-				executor = Executors.newScheduledThreadPool(
-						1, new NamedThreadFactory("ConnHandler:" + serverName));
+				executor = Executors.newFixedThreadPool(2, new NamedThreadFactory("ConnHandler:" + serverName)); 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -262,7 +267,7 @@ public class TestAsychronousMessageChannel {
 		
 		private ExecutorService executor;
 		
-		private boolean running = false;
+		private volatile boolean running = false;
 		
 		public void startServer(){
 			
@@ -349,10 +354,25 @@ public class TestAsychronousMessageChannel {
 		
 		WriteMessageHandler handler;
 		
+		public Future<Void> writeMessageBig(String message, int max){
+			MessageBuffer buffer = new MessageBuffer(1024*4);
+			buffer.writeUTF(message);
+			buffer.writeBytes(new byte[1024*3]);
+			handler = new WriteMessageHandler(this,messageChannel,max);
+			return messageChannel.write(buffer.flip().buffer(), handler);
+		}
+		
 		public Future<Void> writeMessage(String message, int max){
 			MessageBuffer buffer = new MessageBuffer(1024);
 			buffer.writeUTF(message);
 			handler = new WriteMessageHandler(this,messageChannel,max);
+			return messageChannel.write(buffer.flip().buffer(), handler);
+		}
+		
+		public Future<Void> writeMessageBig(String message){
+			MessageBuffer buffer = new MessageBuffer(1024*4);
+			buffer.writeUTF(""+serverName+":"+message);
+			buffer.writeBytes(new byte[1024*3]);
 			return messageChannel.write(buffer.flip().buffer(), handler);
 		}
 		
@@ -368,6 +388,13 @@ public class TestAsychronousMessageChannel {
 		
 		AtomicInteger seq = new AtomicInteger(0);
 		
+		public void newConnectionWithDelayReader(final AsynchronousMessageChannel channel){
+			int id = seq.getAndIncrement();
+			clients.put(id, new Client(id,channel));
+			SessionMessageHandlerDelayed handler = new SessionMessageHandlerDelayed(channel,this);
+			channel.read(handler);
+		}
+		
 		public void newConnection(final AsynchronousMessageChannel channel){
 			
 			int id = seq.getAndIncrement();
@@ -379,11 +406,38 @@ public class TestAsychronousMessageChannel {
 		BlockingQueue<MessageBuffer> messages = new LinkedBlockingQueue<MessageBuffer>();
 		
 		public void putMessage(MessageBuffer message){
+			if(message!=null){
+				System.out.println("put message..");
+			}
 			messages.add(message);
 		}
 	}
 	
 	AtomicInteger count = new AtomicInteger(0);
+	
+	private class SessionMessageHandlerDelayed extends SessionMessageHandler{
+
+		SessionMessageHandlerDelayed(AsynchronousMessageChannel channel,
+				TestServer server) {
+			super(channel, server);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void completed(MessageBuffer result, Void attachment) {
+			// TODO Auto-generated method stub
+			this.server.putMessage(result);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return;
+			}//test 
+			channel.read(this);
+		}
+		
+	}
 	
 	private class SessionMessageHandler implements CompletionHandler<MessageBuffer, Void>{
 
@@ -400,7 +454,6 @@ public class TestAsychronousMessageChannel {
 		public void completed(MessageBuffer result, Void attachment) {
 			// TODO Auto-generated method stub
 			this.server.putMessage(result);
-			System.out.println("register read.	"+count.getAndIncrement());
 			channel.read(this);
 		}
 
@@ -429,6 +482,22 @@ public class TestAsychronousMessageChannel {
 		public Client(int id, AsynchronousMessageChannel channel){
 			this.channel = channel;
 			this.id = id;
+		}
+	}
+	
+	private class DelayedConnectionHandler extends ConnectionHandler{
+		@Override
+		public void completed(AsynchronousSocketChannel arg0, TestServer server) {
+			// TODO Auto-generated method stub
+			try {
+				System.out.println(server.serverName+" rece a new connection "+arg0.getRemoteAddress().toString());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			AsynchronousMessageChannel channel = new AsynchronousMessageChannel(arg0);
+			server.newConnectionWithDelayReader(channel);
+			server.accept(this);
 		}
 	}
 	
