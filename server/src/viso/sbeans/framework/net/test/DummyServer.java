@@ -13,7 +13,7 @@ import viso.sbeans.framework.net.MessageBuffer;
 import viso.sbeans.framework.net.ProtocolAcceptor;
 import viso.sbeans.framework.net.ProtocolHandler;
 import viso.sbeans.framework.net.TcpTransport;
-import viso.sbeans.framework.protocol.RequestCompletion;
+import viso.sbeans.framework.protocol.RequestCompletionHandler;
 import viso.sbeans.framework.protocol.SessionProtocolAcceptor;
 import viso.sbeans.framework.protocol.SessionProtocolHandler;
 
@@ -47,7 +47,7 @@ public class DummyServer {
 		
 		@Override
 		public void LoginNow(ProtocolHandler handler,
-				RequestCompletion<SessionProtocolHandler> request) {
+				RequestCompletionHandler<SessionProtocolHandler> request) {
 			// TODO Auto-generated method stub
 			proHandler = handler;
 			System.out.println("["+System.currentTimeMillis()+"] rece a login request "+counter.getAndIncrement());
@@ -60,7 +60,7 @@ public class DummyServer {
 
 		@Override
 		public void handleSessionMessage(MessageBuffer message,
-				RequestCompletion<Void> handler) {
+				RequestCompletionHandler<Void> handler) {
 			// TODO Auto-generated method stub
 			try {
 				messages.put(message);
@@ -85,14 +85,15 @@ public class DummyServer {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			while(running){
-				try {
-					MessageBuffer message = messages.take();
-					System.out.println("rece a message : "+message.readUTF());
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+			try {
+				while (running) {
+					MessageBuffer message = messages.take();//‘ı√¥∞—À¸Õ£µÙƒÿ£ø
+					System.out.println("rece a message : " + message.readUTF());
 				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+//				e.printStackTrace();
+				// finished
 			}
 		}
 		

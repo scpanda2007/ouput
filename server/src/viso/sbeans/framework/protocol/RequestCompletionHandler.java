@@ -1,5 +1,5 @@
 package viso.sbeans.framework.protocol;
 
-public interface RequestCompletion<V> {
+public interface RequestCompletionHandler<V> {
 	public void completed(V result);
 }

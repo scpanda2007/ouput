@@ -5,7 +5,7 @@ import java.nio.channels.CompletionHandler;
 import java.nio.channels.ReadPendingException;
 
 import viso.sbeans.framework.protocol.ProtocolHeader;
-import viso.sbeans.framework.protocol.RequestCompletion;
+import viso.sbeans.framework.protocol.RequestCompletionHandler;
 import viso.sbeans.framework.protocol.SessionProtocolAcceptor;
 import viso.sbeans.framework.protocol.SessionProtocolHandler;
 
@@ -115,7 +115,7 @@ public class ProtocolHandler {
 		}
 	}
 	
-	private class LoginComplete implements RequestCompletion<SessionProtocolHandler>{
+	private class LoginComplete implements RequestCompletionHandler<SessionProtocolHandler>{
 
 		@Override
 		public void completed(SessionProtocolHandler handler) {
@@ -125,7 +125,7 @@ public class ProtocolHandler {
 		
 	}
 	
-	private class SessionMessageComplete implements RequestCompletion<Void>{
+	private class SessionMessageComplete implements RequestCompletionHandler<Void>{
 
 		@Override
 		public void completed(Void result) {
