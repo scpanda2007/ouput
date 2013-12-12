@@ -1,8 +1,10 @@
 package viso.sbeans.framework.net;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.nio.channels.ReadPendingException;
+import java.util.LinkedList;
 
 import viso.sbeans.framework.protocol.ProtocolHeader;
 import viso.sbeans.framework.protocol.RequestCompletionHandler;
@@ -18,6 +20,7 @@ public class ProtocolHandler {
 	ProtocolAcceptor acceptor;
 	
 	private ConnectionReadHandler readHandler = new ConnectionReadHandler();
+	private ConnectionWriteHandler writeHandler = new ConnectionWriteHandler();
 	
 	public ProtocolHandler(ProtocolAcceptor acceptor, SessionProtocolAcceptor listener, 
 			AsynchronousMessageChannel channel){
@@ -27,7 +30,7 @@ public class ProtocolHandler {
 		scheduelRead();
 	}
 	
-	public void scheduelRead(){
+	private void scheduelRead(){
 		this.acceptor.scheduledNonTransactionTask(new Runnable(){
 			@Override
 			public void run(){
@@ -37,9 +40,17 @@ public class ProtocolHandler {
 		});
 	}
 	
-	public void readNow(){
+	private void readNow(){
 		if(isOpen()){
 			readHandler.read();
+		}else{
+			close();
+		}
+	}
+	
+	public void write(ByteBuffer buffer){
+		if(isOpen()){
+			writeHandler.write(buffer);
 		}else{
 			close();
 		}
@@ -78,6 +89,47 @@ public class ProtocolHandler {
 			;
 			break;
 		}
+	}
+	
+	private class ConnectionWriteHandler implements CompletionHandler<Void, Void>{
+		
+		private Object writeLock;
+		
+		private boolean isWriting = false;
+		
+		private LinkedList<ByteBuffer> pendingMessages = new LinkedList<ByteBuffer>();
+		
+		public void write(ByteBuffer buffer){
+			synchronized(writeLock){
+				if(!isWriting){
+					isWriting = true;
+					channel.write(buffer, this);
+					return;
+				}
+				pendingMessages.offer(buffer);
+			}
+		}
+		
+		@Override
+		public void completed(Void arg0, Void arg1) {
+			// TODO Auto-generated method stub
+			ByteBuffer sendMessge;
+			synchronized(writeLock){
+				if(pendingMessages.isEmpty()){
+					isWriting = false;
+					return;
+				}
+				sendMessge = pendingMessages.poll();
+			}
+			channel.write(sendMessge, this);
+		}
+
+		@Override
+		public void failed(Throwable arg0, Void arg1) {
+			// TODO Auto-generated method stub
+			close();
+		}
+		
 	}
 	
 	private class ConnectionReadHandler implements CompletionHandler<MessageBuffer,Void>{
