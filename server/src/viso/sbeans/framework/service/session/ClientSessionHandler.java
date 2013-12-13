@@ -1,6 +1,7 @@
 package viso.sbeans.framework.service.session;
 
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 import viso.sbeans.app.AppListener;
 import viso.sbeans.framework.net.MessageBuffer;
@@ -8,6 +9,7 @@ import viso.sbeans.framework.net.ProtocolHandler;
 import viso.sbeans.framework.protocol.RequestCompletionHandler;
 import viso.sbeans.framework.protocol.SessionProtocolHandler;
 import viso.sbeans.framework.service.data.DataService;
+import viso.sbeans.framework.service.session.ClientSessionService.Action;
 import viso.sbeans.framework.util.TaskQueue;
 
 public class ClientSessionHandler implements SessionProtocolHandler{
@@ -67,10 +69,26 @@ public class ClientSessionHandler implements SessionProtocolHandler{
 			if(app==null){
 				throw new NullPointerException();
 			}
-			ClientSessionImpl session = new ClientSessionImpl(sessionRefId);
+			ClientSessionImpl session = new ClientSessionImpl(sessionRefId,sessionService);
 			ClientSessionListener listener = app.login(session);
 			session.registerListener(listener);
 		}
+	}
+	
+	public class SendMessageAction implements Action{
+
+		final byte message[];
+		
+		public SendMessageAction(byte message[]){
+			this.message = message;
+		}
+		
+		@Override
+		public void doAction() {
+			// TODO Auto-generated method stub
+			protocol.write(ByteBuffer.wrap(message));
+		}
+		
 	}
 	
 }

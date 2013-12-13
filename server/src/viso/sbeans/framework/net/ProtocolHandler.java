@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.CompletionHandler;
 import java.nio.channels.ReadPendingException;
 import java.util.LinkedList;
+import java.util.List;
 
 import viso.sbeans.framework.protocol.ProtocolHeader;
 import viso.sbeans.framework.protocol.RequestCompletionHandler;
@@ -50,7 +51,7 @@ public class ProtocolHandler {
 	
 	public void write(ByteBuffer buffer){
 		if(isOpen()){
-			writeHandler.write(buffer);
+			writeNow(buffer,false);
 		}else{
 			close();
 		}
@@ -91,6 +92,35 @@ public class ProtocolHandler {
 		}
 	}
 	
+	private boolean loginHandled = false;
+	
+	private Object lock = new Object();
+	
+	private LinkedList<ByteBuffer> messageQueue = new LinkedList<ByteBuffer>();
+	
+	private void logSucess(){
+		ByteBuffer message = ByteBuffer.allocate(4);
+		message.put(ProtocolHeader.kLoginSuccess).flip();
+		writeNow(message,true);
+	}
+	
+	private void writeNow(ByteBuffer message, boolean flush){
+		synchronized(lock){
+			if(!loginHandled){
+				messageQueue.add(message);
+				return;
+			}
+			writeHandler.write(message);
+			if(flush){
+				while(!messageQueue.isEmpty()){
+					ByteBuffer msg = messageQueue.remove();
+					writeHandler.write(msg);
+				}
+			}
+		}
+	}
+	
+	//最好是注册完成了再发送 需要在某个地方保证
 	private class ConnectionWriteHandler implements CompletionHandler<Void, Void>{
 		
 		private Object writeLock;
@@ -101,13 +131,13 @@ public class ProtocolHandler {
 		
 		public void write(ByteBuffer buffer){
 			synchronized(writeLock){
-				if(!isWriting){
-					isWriting = true;
-					channel.write(buffer, this);
+				if(isWriting){
+					pendingMessages.offer(buffer);
 					return;
 				}
-				pendingMessages.offer(buffer);
+				isWriting = true;
 			}
+			channel.write(buffer, this);
 		}
 		
 		@Override
@@ -173,6 +203,13 @@ public class ProtocolHandler {
 		public void completed(SessionProtocolHandler handler) {
 			// TODO Auto-generated method stub
 			sessionHandler = handler;
+			logSucess();
+		}
+
+		@Override
+		public void failed(Throwable t, SessionProtocolHandler result) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}
@@ -183,6 +220,12 @@ public class ProtocolHandler {
 		public void completed(Void result) {
 			// TODO Auto-generated method stub
 			readHandler.read();
+		}
+
+		@Override
+		public void failed(Throwable t, Void result) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}
