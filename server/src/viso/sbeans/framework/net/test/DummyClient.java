@@ -16,7 +16,7 @@ public class DummyClient{
 	AsynchronousSocketChannel orgchannel;
 	AsynchronousMessageChannel channel;
 	String name;
-	DummyClient(String name){
+	public DummyClient(String name){
 		this.name = name;
 	}
 	
@@ -118,7 +118,7 @@ class ClientProtocolWriter implements CompletionHandler<Void,Void>{
 		// TODO Auto-generated method stub
 		if(this.count < max){
 			this.count += 1;
-			String msg = "["+client.name+"] hello this my "+count+"rd mssage-"+System.currentTimeMillis();
+			String msg = "["+client.name+"] hello this my "+count+"rd mssage";
 			client.writeMessage(msg,this);
 		}
 	}
