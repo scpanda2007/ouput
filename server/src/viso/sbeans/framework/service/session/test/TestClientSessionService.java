@@ -1,5 +1,8 @@
 package viso.sbeans.framework.service.session.test;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -26,8 +29,8 @@ public class TestClientSessionService {
 	
 	@BeforeClass
 	public static void beforeAll(){
-		String host = "127.0.0.1";
-		int port = 12345;
+		String host = "192.168.1.102";
+		int port = 8000;
 		end = new InetSocketAddress(host,port);
 		property = new Properties();
 		property.setProperty(TcpTransport.ADD_HOST, host);
@@ -64,12 +67,37 @@ public class TestClientSessionService {
 	}
 	
 	@Test
-	public void testAccept(){
-		createTestClient(1);
-		DummyClient client = clients.get(0);
-		client.connectAndWait(end);
-		client.writeLogin();
+	public void testNoStop(){
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		try {
+			String cmd;
+			do{
+				cmd = reader.readLine();
+			}while(cmd!=null && cmd.equals("a"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+	
+	@Test
+	public void testAccept(){
+		try {
+			Thread.sleep(600000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	
 	@Test
 	public void testReceMsg(){

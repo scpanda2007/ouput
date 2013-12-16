@@ -44,6 +44,7 @@ public class ProtocolAcceptor {
 		public void newConnection(AsynchronousMessageChannel channel)
 				throws Exception {
 			// TODO Auto-generated method stub
+			System.out.println("XXXXXXXXXXXXXXXXXX");
 			new ProtocolHandler(ProtocolAcceptor.this, listener, channel);
 		}
 

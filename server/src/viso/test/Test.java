@@ -3,7 +3,10 @@ package viso.test;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
+
+import viso.sbeans.framework.net.test.DummyClient;
 
 public class Test {
 	
@@ -52,6 +55,14 @@ public class Test {
 	}
 	
 	public static void main(String args[]){
-		System.out.println(""+Math.acos(1.90f-1.0f));
+		DummyClient cient = new DummyClient("client[0]");
+		InetSocketAddress end = new InetSocketAddress("192.168.1.102",8000);
+		cient.connectAndWait(end);
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

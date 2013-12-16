@@ -47,6 +47,7 @@ public class ClientSessionService {
 	
 	private ClientSessionService(Properties property){
 		receScheduler = new TaskScheduler();
+		actionScheduler = new TaskScheduler();
 		acceptor = new ProtocolAcceptor(property);
 		server = new ClientSessionServerImpl();
 		acceptor.accept(new SessionProtocolAcceptorImpl());
@@ -91,7 +92,9 @@ public class ClientSessionService {
 	public void commitAction(final Action action, final BigInteger sessionRefId){
 		TaskQueue actionQueue = actionTaskQueues.get(sessionRefId);
 		if(actionQueue==null){
-			actionQueue = actionTaskQueues.putIfAbsent(sessionRefId, actionScheduler.createTaskQueue());
+			actionQueue = actionScheduler.createTaskQueue();
+			TaskQueue old = actionTaskQueues.putIfAbsent(sessionRefId, actionQueue);
+			actionQueue = old==null? actionQueue : old;
 		}
 		actionQueue.submit(new Runnable(){
 			@Override

@@ -96,14 +96,12 @@ public class TestAsychronousMessageChannel {
 	private class WriteMessageHandler implements CompletionHandler<Void,Void>{
 		
 		TestServer server;
-		AsynchronousMessageChannel channel;
 		int count;
 		int max;
 		public WriteMessageHandler(TestServer server,AsynchronousMessageChannel channel,int max){
 			this.max = max;
 			this.count = 0;
 			this.server = server;
-			this.channel = channel;
 		}
 		
 		@Override
