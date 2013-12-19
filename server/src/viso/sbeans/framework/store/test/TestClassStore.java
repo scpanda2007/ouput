@@ -31,7 +31,6 @@ public class TestClassStore {
 	public void fetchAClassOstreamClass(){
 		byte[] nonsense = new byte[]{0,1,2,3,4,5,6};
 		int id = store.getClassId(null, nonsense);
-		System.out.println("Id is :: "+id);
 		byte[] getFromClassDb = store.getClassInfo(null, id);
 		assertArrayEquals(nonsense,getFromClassDb);
 	}

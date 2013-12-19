@@ -78,12 +78,10 @@ public class DataUtility {
 		// TODO Auto-generated method stub
 		byte[] classInfoKey = getDataClassInfoKey(classInfo);
 		boolean done = false;
-		System.out.println(Arrays.toString(classInfo));
 		DbTransaction dbTxn = env.beginTransaction(timeout);
 		try {
 			byte[] classIdKey = classDb.get(classInfoKey, dbTxn, false);
 			if (classIdKey != null) {
-				System.out.println("---------------------------"+Arrays.toString(classIdKey));
 				return DataEncoder.decodeInt(classIdKey, 1);
 			} else {
 				DbCursor cursor = classDb.openCursor(dbTxn);
@@ -91,6 +89,7 @@ public class DataUtility {
 				try {
 					result = cursor.findLast() ? DataEncoder.decodeInt(
 							cursor.getKey(), 1) : 0;
+					System.out.println(">>>>>>>>"+result);
 					result += 1;
 					classIdKey = getDataClassIdKey(result);
 					System.out.println("============================="+Arrays.toString(classIdKey));

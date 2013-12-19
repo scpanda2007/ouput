@@ -1,5 +1,7 @@
 package viso.sbeans.framework.store.db;
 
+import java.util.Arrays;
+
 import com.sleepycat.db.Cursor;
 import com.sleepycat.db.Database;
 import com.sleepycat.db.DatabaseEntry;

@@ -27,7 +27,7 @@ public class DataEncoder {
 		value += (data[off++] & 0xff);
 		value <<= 8;
 		value += (data[off] & 0xff);
-		return 0;
+		return value;
 	}
 	
 	public static byte[] encodeInt(int number, int off){
