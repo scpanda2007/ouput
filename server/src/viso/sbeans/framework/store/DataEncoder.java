@@ -1,24 +1,73 @@
 package viso.sbeans.framework.store;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 public class DataEncoder {
-	public static int decodeInt30(byte[] data){
-		return 0;
+	public static short decodeShort(byte[] data,int off){
+		int value = (data[off++] & 0xff) ^ 0x80;
+		value <<= 8;
+		value += (data[off] & 0xff);
+		return (short)value;
 	}
-	public static int decodeInt(byte[] data){
-		return 0;
+	
+	public static byte[] encodeShort(short number,int off){
+		byte bytes[] = new byte[off+number];
+		bytes[off++]= (byte)(number>>>8);
+		bytes[off] = (byte)number;
+		return bytes;
 	}
-	public static short decodeShort(byte[] data){
+	
+	public static int decodeInt(byte[] data,int off){
+		int value = (data[off++] & 0xff) ^ 0x80;
+		value <<= 8;
+		value += (data[off++] & 0xff);
+		value <<= 8;
+		value += (data[off++] & 0xff);
+		value <<= 8;
+		value += (data[off] & 0xff);
 		return 0;
 	}
 	
-	public static byte[] encodeShort(short number){
-		return null;
+	public static byte[] encodeInt(int number, int off){
+		byte bytes[] = new byte[4+off];
+		bytes[off++] = (byte)(((number>>>24)) ^ 0x80); 
+		bytes[off++] = (byte)(number>>>16);
+		bytes[off++] = (byte)(number>>>8);
+		bytes[off++] = (byte)(number);
+		return bytes;
 	}
-	public static byte[] encodeInt(int number){
-		return null;
+	
+	public static void encodeVarInt(int number, OutputStream out)
+			throws IOException {
+		while(true) {
+			byte n = (byte) (number | 0x80);
+			number >>>= 7;
+			if(number==0){
+				n &= 0x7f;
+				out.write(n);
+				break;
+			}
+			out.write(n);
+		} 
 	}
-	public static byte[] encodeInt30(int number){
-		return null;
+	
+	public static int decodeVarInt(InputStream in) throws IOException{
+		int value = 0;
+		int n = in.read();
+		if(n==-1){
+			throw new IOException("decodeVarInt at End of File.");
+		}
+		
+		for(int i=0;i<5;i++){
+			value |= ((n & 0x7f) << 7*i);
+			if((n&0x80)==0){
+				break;
+			}
+			n = in.read();
+		}
+		return value;
 	}
 	
 	public static long decodeLong(byte[] bytes){

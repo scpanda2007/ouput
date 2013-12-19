@@ -75,7 +75,7 @@ public class BDBDatabase {
 	 */
 	public boolean putNoOverWrite(byte[] key,byte[] data,DbTransaction txn){
 		try {
-			OperationStatus statu = db.putNoDupData(txn.getTransaction(), new DatabaseEntry(key), new DatabaseEntry(data));
+			OperationStatus statu = db.putNoOverwrite(txn.getTransaction(), new DatabaseEntry(key), new DatabaseEntry(data));
 			if(statu==OperationStatus.SUCCESS){
 				return true;
 			}else if(statu==OperationStatus.KEYEXIST){

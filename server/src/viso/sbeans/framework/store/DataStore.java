@@ -2,7 +2,6 @@ package viso.sbeans.framework.store;
 
 import java.io.ObjectStreamClass;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -16,6 +15,8 @@ import static viso.com.util.Objects.checkNull;
 public class DataStore {
 
 	Map<String, BDBDatabase> databases = new HashMap<String, BDBDatabase>();
+	
+	BDBDatabase classDb;
 	
 	Map<Integer, ObjectStreamClass> classDescs = new HashMap<Integer, ObjectStreamClass>();
 	
@@ -55,6 +56,7 @@ public class DataStore {
 				for (String fileName : fileNames) {
 					databases.put(fileName, env.open(txn, fileName, true));
 				}
+				classDb = env.open(txn, "classes", true);
 				txn.commit();
 			} catch (Exception e) {
 				txn.abort();
@@ -118,6 +120,15 @@ public class DataStore {
 				database.close();
 			}
 		}
+	}
+
+	public byte[] getClassInfo(DbTransaction txn, int classId){
+		return DataUtility.getClassInfo(classDb, classId, env, 200);
+	}
+	
+	public int getClassId(DbTransaction txn, byte[] data) {
+		// TODO Auto-generated method stub
+		return DataUtility.getClassId(classDb, data, env, 200);
 	}
 
 }
