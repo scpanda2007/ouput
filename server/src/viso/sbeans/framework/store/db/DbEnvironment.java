@@ -11,7 +11,7 @@ import com.sleepycat.db.TransactionConfig;
 
 public class DbEnvironment {
 	Environment env;
-	private static long kDefaultCacheSize = 1024 * 1024;
+	private static long kDefaultCacheSize = 128000000L;
 
 	private static TransactionConfig fullIsolation = new TransactionConfig();
 	static{
@@ -27,10 +27,12 @@ public class DbEnvironment {
 		config.setAllowCreate(true);
 		config.setCacheSize(kDefaultCacheSize);
 		config.setInitializeCache(true);
+		config.setInitializeLocking(true);
+		config.setInitializeLogging(true);
+		config.setLogAutoRemove(true);
 		config.setRunRecovery(true);
 		config.setLockDetectMode(LockDetectMode.YOUNGEST);
-		config.setLockTimeout(10000);
-		config.setInitializeLocking(true);
+		config.setLockTimeout(10000000);
 		config.setTxnWriteNoSync(true);//ª∫¥Ê–¥
 		try {
 			env = new Environment(dir, config);

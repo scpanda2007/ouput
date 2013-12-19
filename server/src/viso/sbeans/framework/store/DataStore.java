@@ -123,12 +123,12 @@ public class DataStore {
 	}
 
 	public byte[] getClassInfo(DbTransaction txn, int classId){
-		return DataUtility.getClassInfo(classDb, classId, env, 200);
+		return DataUtility.getClassInfo(classDb, classId, env, 20000);
 	}
 	
 	public int getClassId(DbTransaction txn, byte[] data) {
 		// TODO Auto-generated method stub
-		return DataUtility.getClassId(classDb, data, env, 200);
+		return DataUtility.getClassId(classDb, data, env, 20000);
 	}
 
 }

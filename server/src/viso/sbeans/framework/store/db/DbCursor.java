@@ -1,7 +1,5 @@
 package viso.sbeans.framework.store.db;
 
-import java.util.Arrays;
-
 import com.sleepycat.db.Cursor;
 import com.sleepycat.db.Database;
 import com.sleepycat.db.DatabaseEntry;
@@ -92,10 +90,10 @@ public class DbCursor {
 			}else if(statu==OperationStatus.NOTFOUND){
 				return false;
 			}
-			throw new IllegalStateException("Failed to findNext0");
+			throw new IllegalStateException("Failed to findLast0");
 		} catch (DatabaseException e) {
 			// TODO Auto-generated catch block
-			throw new IllegalStateException("Failed to findNext0",e);
+			throw new IllegalStateException("Failed to findLast0",e);
 		}
 	}
 	

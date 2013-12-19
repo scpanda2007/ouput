@@ -96,12 +96,13 @@ public class TestObjectIOStream {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
 		TestObjectOutputStream oos = null;
+		ObjectInputStream ois = null;
 		try {
 			oos = new TestObjectOutputStream(baos,test,serializer);
 			oos.writeObject(test);
 			oos.flush();
 			byte in[] = baos.toByteArray();
-			ObjectInputStream ois = new TestObjectInputStream(new ByteArrayInputStream(in),serializer);
+			ois = new TestObjectInputStream(new ByteArrayInputStream(in),serializer);
 			TestObject2 test2 = (TestObject2)ois.readObject();
 			System.out.println("TestObject:"+test2.toString());
 		} catch (IOException e) {
@@ -118,6 +119,13 @@ public class TestObjectIOStream {
 					
 				}
 			}
+			if(ois!=null){
+				try{
+					ois.close();
+				}catch(IOException e){
+					
+				}
+			}
 		}
 	}
 	
@@ -127,12 +135,13 @@ public class TestObjectIOStream {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
 		TestObjectOutputStream oos = null;
+		ObjectInputStream ois = null;
 		try {
 			oos = new TestObjectOutputStream(baos,test,serializer);
 			oos.writeObject(test);
 			oos.flush();
 			byte in[] = baos.toByteArray();
-			ObjectInputStream ois = new TestObjectInputStream(new ByteArrayInputStream(in),serializer);
+			ois = new TestObjectInputStream(new ByteArrayInputStream(in),serializer);
 			TestObject3 test2 = (TestObject3)ois.readObject();
 			System.out.println("TestObject:"+test2.toString());
 		} catch (IOException e) {
@@ -149,6 +158,13 @@ public class TestObjectIOStream {
 					
 				}
 			}
+			if(ois!=null){
+				try{
+					ois.close();
+				}catch(IOException e){
+					
+				}
+			}
 		}
 	}
 	
@@ -157,12 +173,14 @@ public class TestObjectIOStream {
 		TestObject3 test = new TestObject3(12345,"abcd");
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		System.out.println("TestObject actually is:"+test.toString());
+		TestObjectOutputStream oos = null;
+		ObjectInputStream ois = null;
 		try {
-			TestObjectOutputStream oos = new TestObjectOutputStream(baos,test,serializer);
+			oos = new TestObjectOutputStream(baos,test,serializer);
 			oos.writeObject(test);
 			oos.flush();
 			byte in[] = baos.toByteArray();
-			ObjectInputStream ois = new TestObjectInputStream(new ByteArrayInputStream(in),serializer);
+			ois = new TestObjectInputStream(new ByteArrayInputStream(in),serializer);
 			TestObject test2 = (TestObject)ois.readObject();
 			System.out.println("TestObject decode is :"+test2.toString());
 		} catch (IOException e) {
@@ -171,6 +189,21 @@ public class TestObjectIOStream {
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally{
+			if(oos!=null){
+				try{
+					oos.close();
+				}catch(IOException e){
+					
+				}
+			}
+			if(ois!=null){
+				try{
+					ois.close();
+				}catch(IOException e){
+					
+				}
+			}
 		}
 	}
 	

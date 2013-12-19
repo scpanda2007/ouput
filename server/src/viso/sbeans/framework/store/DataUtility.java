@@ -1,10 +1,8 @@
 package viso.sbeans.framework.store;
 
-import java.lang.reflect.Array;
 import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 import viso.sbeans.framework.store.db.BDBDatabase;
 import viso.sbeans.framework.store.db.DbCursor;
@@ -78,21 +76,19 @@ public class DataUtility {
 		// TODO Auto-generated method stub
 		byte[] classInfoKey = getDataClassInfoKey(classInfo);
 		boolean done = false;
-		DbTransaction dbTxn = env.beginTransaction(timeout);
+		DbTransaction dbTxn = env.beginTransaction(timeout, true);
 		try {
+			int result;
 			byte[] classIdKey = classDb.get(classInfoKey, dbTxn, false);
 			if (classIdKey != null) {
-				return DataEncoder.decodeInt(classIdKey, 1);
+				result = DataEncoder.decodeInt(classIdKey, 1);
 			} else {
 				DbCursor cursor = classDb.openCursor(dbTxn);
-				int result;
 				try {
 					result = cursor.findLast() ? DataEncoder.decodeInt(
 							cursor.getKey(), 1) : 0;
-					System.out.println(">>>>>>>>"+result);
 					result += 1;
 					classIdKey = getDataClassIdKey(result);
-					System.out.println("============================="+Arrays.toString(classIdKey));
 					if (!cursor.putNoOverWrite(classIdKey, classInfo)) {
 						throw new IllegalStateException(
 								"classIdKey already exist");
@@ -104,10 +100,10 @@ public class DataUtility {
 					throw new IllegalStateException(
 					"classInfoKey already exist");
 				}
-				dbTxn.commit();
-				done = true;
-				return result;
 			}
+			dbTxn.commit();
+			done = true;
+			return result;
 		} finally {
 			if (!done) {
 				dbTxn.abort();
