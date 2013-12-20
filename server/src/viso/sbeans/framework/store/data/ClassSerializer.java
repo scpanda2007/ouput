@@ -8,7 +8,7 @@ import java.io.ObjectStreamClass;
 public interface ClassSerializer {
 	/**
 	 * 从ois中得到 ObjectStreamClass
-	 * @throws DataObjectIOException
+	 * @throws IOException
 	 * @throws IOException 
 	 */
 	public ObjectStreamClass readDescriptor(ObjectInputStream ois) throws IOException;
@@ -19,7 +19,7 @@ public interface ClassSerializer {
 	public void checkInitializable(ObjectStreamClass osc) throws DataObjectIOException;
 	/**
 	 * 将一个ObjectStreamClass 写入到oos中
-	 * @throws DataObjectIOException
+	 * @throws IOException
 	 * */
 	public void writeDescriptor(ObjectStreamClass osc,ObjectOutputStream oos) throws IOException;
 }

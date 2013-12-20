@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import viso.sbeans.framework.store.DataEncoder;
 import viso.sbeans.framework.store.DataStore;
-import viso.sbeans.framework.store.db.DbTransaction;
+import viso.sbeans.framework.transaction.VTransaction;
 
 public class ClassTables {
 	
@@ -37,7 +37,16 @@ public class ClassTables {
 		this.store = store;
 	}
 	
-	public ClassSerializer createClassSerializer(final DbTransaction dbTxn){
+	public String dummy(){
+		lock.readLock().lock();
+		try{
+			return classInfos.keySet().toString();
+		}finally{
+			lock.readLock().unlock();
+		}
+	}
+	
+	public ClassSerializer createClassSerializer(final VTransaction dbTxn){
 		return new ClassSerializer(){
 
 			@Override
@@ -68,10 +77,11 @@ public class ClassTables {
 		ClassDescInfo desc;
 		UpdateMapResult(ClassDescInfo desc){
 			this.desc = desc;
+//			System.out.println(dummy());
 		}
 	}
 	
-	private ClassDescInfo getClassDescInfo(DbTransaction dbTxn,int classId){
+	private ClassDescInfo getClassDescInfo(VTransaction dbTxn,int classId){
 		ClassDescInfo info = null;
 		lock.readLock().lock();
 		try{
@@ -84,7 +94,7 @@ public class ClassTables {
 		return updateMap(classId,BytesToObjectStreamClass(classinfo)).desc;
 	}
 	
-	private ClassDescInfo getClassDescInfo(DbTransaction dbTxn,ObjectStreamClass osc){
+	private ClassDescInfo getClassDescInfo(VTransaction dbTxn,ObjectStreamClass osc){
 		ClassDescInfo info = null;
 		lock.readLock().lock();
 		try{
@@ -198,6 +208,7 @@ public class ClassTables {
 			ClassDescInfo ref;
 			while((ref = (ClassDescInfo)refQueue.poll())!=null){
 				maps.remove(ref.classId);
+				System.out.println("clear some rubbish"+ref.classId);
 			}
 		}
 	}
@@ -251,7 +262,6 @@ public class ClassTables {
 	
 	static String getPackageName(Class<?> klass){
 		String name = klass.getName();
-		System.out.println(name);
 		int pos = name.lastIndexOf('[');
 		if(pos>=0){
 			name = name.substring(pos+2);
@@ -263,7 +273,7 @@ public class ClassTables {
 	static String missUnSerializeObjectCtorWithNoArg(Class<?> klass){
 		Class<?> detect = klass.getSuperclass();
 		while(detect!=null && Serializable.class.isAssignableFrom(detect)){
-			detect = klass.getSuperclass(); 
+			detect = detect.getSuperclass(); 
 		}
 		if(detect==null) return null;
 		try {

@@ -1,8 +1,13 @@
 package viso.sbeans.framework.store.test;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,8 +18,78 @@ import org.junit.Before;
 import org.junit.After;
 
 import viso.com.util.NamedThreadFactory;
+import viso.sbeans.framework.kernel.TaskScheduler;
 import viso.sbeans.framework.store.DataEncoder;
 import viso.sbeans.framework.store.DataStore;
+import viso.sbeans.framework.store.data.ClassSerializer;
+import viso.sbeans.framework.store.data.ClassTables;
+import viso.sbeans.framework.store.data.DataObject;
+import viso.sbeans.framework.store.data.SerialUtil;
+
+class TableClass0 {
+	public List<Integer> array0 = new ArrayList<Integer>();
+	public Map<Integer,String> map0 = new HashMap<Integer,String>();
+	int b = 1;
+	public String toString(){
+		return "b:"+1;
+	}
+}
+
+class TableClass1 extends TableClass0{
+	public Map<Integer,String> map1 = new TreeMap<Integer,String>();
+	int b = 2;
+	public String toString(){
+		return "b:"+2;
+	}
+}
+
+class TableClass2 extends TableClass1 implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+	
+	public TableClass2(int b){
+		this.b = b;
+	}
+	public String toString(){
+		return "b:"+b;
+	}
+	
+}
+
+class TableClass3 extends TableClass2 implements DataObject{
+
+	int c;
+	
+	TableClass4 cl4;
+	
+	Map<String,String> tt;
+	
+	public TableClass3(int b,int c,int d) {
+		super(b);
+		// TODO Auto-generated constructor stub
+		this.c = c;
+		cl4 = new TableClass4();
+		cl4.d = d;
+		tt = new HashMap<String,String>();
+	}
+
+	private static final long serialVersionUID = 1L;
+	
+	public String toString(){
+		return "b:"+b+" c:"+c+" "+cl4.toString();
+	}
+}
+
+class TableClass4 implements Serializable{
+
+	private static final long serialVersionUID = 1L;
+	
+	public int d = 1;
+	
+	public String toString(){
+		return "d:"+d;
+	}
+}
 
 public class TestClassStore {
 	
@@ -31,6 +106,54 @@ public class TestClassStore {
 	public void setUp(){
 		store = new DataStore(null);
 		store.init("D:", "testB", new HashSet<String>());
+	}
+	
+	@Test 
+	public void testClassTables() {
+
+		TaskScheduler scheduler = new TaskScheduler();
+		for (int i = 0; i < 4; i++){
+			
+			final int time = i*1000;
+			
+			scheduler.sumbit(new Runnable() {
+
+				@Override
+				public void run() {
+					try{
+						Thread.sleep(time);
+					}catch(InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					// TODO Auto-generated method stub
+					ClassTables tables = new ClassTables(store);
+					ClassSerializer serializer = tables
+							.createClassSerializer(null);
+					TableClass3 obj3 = new TableClass3(4, 5, 6);
+					byte[] byte0 = SerialUtil.write(obj3, serializer);
+					System.out.println(Arrays.toString(byte0));
+					TableClass3 obj4 = SerialUtil.read(byte0, serializer);
+					System.out.println(obj4.toString());
+					System.gc();
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+
+			});
+		}
+		try {
+			Thread.sleep(6000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		scheduler.shutdown();
 	}
 	
 	@Test

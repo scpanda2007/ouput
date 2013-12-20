@@ -71,18 +71,22 @@ public class DataUtility {
 	/**
 	 * 从类数据库中查找一个类的id,如果没有就生成一个并插入
 	 * */
-	public static int getClassId(BDBDatabase classDb, byte[] classInfo,
+	public static int getClassId(BDBDatabase classDb, BDBDatabase classIdx, byte[] classInfo,
 			DbEnvironment env, int timeout) {
 		// TODO Auto-generated method stub
 		byte[] classInfoKey = getDataClassInfoKey(classInfo);
 		boolean done = false;
 		DbTransaction dbTxn = env.beginTransaction(timeout, true);
+		//这个地方会导致读事务生成一个 高隔离的 读锁，写锁的获取估计会等到所有读锁结束，这时如果
+		//classIdx.get使用false，会在 classIdx.putNoOverWrite 时产生死锁
 		try {
 			int result;
-			byte[] classIdKey = classDb.get(classInfoKey, dbTxn, false);
+			byte[] classIdKey = classIdx.get(classInfoKey, dbTxn, true);//不能使用false 否则在后面升写锁时 会造成死锁
 			if (classIdKey != null) {
 				result = DataEncoder.decodeInt(classIdKey, 1);
 			} else {
+//				classIdx.markForUpdate(classInfoKey, dbTxn); 
+//				两把高隔离的读锁都想要升级为写锁时 会 嗝屁，因为他们都会等对方结束，我这里不想进行过多操作了 直接 get(true)
 				DbCursor cursor = classDb.openCursor(dbTxn);
 				try {
 					result = cursor.findLast() ? DataEncoder.decodeInt(
@@ -96,10 +100,11 @@ public class DataUtility {
 				}finally{
 					cursor.close();
 				}
-				if(!classDb.putNoOverWrite(classInfoKey, classIdKey, dbTxn)){
+				if(!classIdx.putNoOverWrite(classInfoKey, classIdKey, dbTxn)){
 					throw new IllegalStateException(
 					"classInfoKey already exist");
 				}
+//				System.out.println("insert key:"+result);
 			}
 			dbTxn.commit();
 			done = true;
