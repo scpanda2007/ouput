@@ -49,12 +49,24 @@ public class DataContext implements TransactionListener{
 		return flushes;
 	}
 	
+	public DataObject getObject(String key){
+		return null;
+	}
+	
+	public void removeObject(String key){
+		
+	}
+	
 	public DataObjectReference<?> find(String key){
 		return refs.get(key);
 	}
 	
 	public void unregister(String key){
 		refs.remove(key);
+	}
+	
+	public void register(String key,DataObjectReference<?> ref){
+		refs.put(key, ref);
 	}
 
 	@Override

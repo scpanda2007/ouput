@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import viso.sbeans.framework.kernel.ThreadContext;
 import viso.sbeans.framework.store.db.BDBDatabase;
 import viso.sbeans.framework.store.db.DbEnvironment;
 import viso.sbeans.framework.store.db.DbTransaction;
@@ -44,8 +43,7 @@ public class DataStore implements TransactionParticipant{
 	/**
 	 * 查看当前活动是否在当前 VTransaction 之中
 	 * */
-	public void checkHaveAnActiveTransaction(){
-		VTransaction transaction = ThreadContext.getTransaction();
+	public void checkHaveAnActiveTransaction(VTransaction transaction){
 		if(transaction==null || !transaction.active()){
 			throw new TransactionNotActiveException("Need an active transaction on datastore op.");
 		}
@@ -197,7 +195,7 @@ public class DataStore implements TransactionParticipant{
 	}
 
 	public void put(VTransaction txn, String key, byte[] value){
-		checkHaveAnActiveTransaction();
+		checkHaveAnActiveTransaction(txn);
 		String storeKey = key.substring(key.indexOf('.'));
 		String table = key.substring(0,key.indexOf('.'));
 		try {
@@ -209,7 +207,7 @@ public class DataStore implements TransactionParticipant{
 	}
 	
 	public boolean putNoOverWrite(VTransaction txn, String key, byte[] value){
-		checkHaveAnActiveTransaction();
+		checkHaveAnActiveTransaction(txn);
 		String storeKey = key.substring(key.indexOf('.'));
 		String table = key.substring(0,key.indexOf('.'));
 		try {
@@ -221,7 +219,7 @@ public class DataStore implements TransactionParticipant{
 	}
 	
 	public boolean delete(VTransaction txn, String key){
-		checkHaveAnActiveTransaction();
+		checkHaveAnActiveTransaction(txn);
 		String storeKey = key.substring(key.indexOf('.'));
 		String table = key.substring(0,key.indexOf('.'));
 		try {
@@ -233,7 +231,7 @@ public class DataStore implements TransactionParticipant{
 	}
 	
 	public byte[] get(VTransaction txn, String key,boolean writeLock){
-		checkHaveAnActiveTransaction();
+		checkHaveAnActiveTransaction(txn);
 		String storeKey = key.substring(key.indexOf('.'));
 		String table = key.substring(0,key.indexOf('.'));
 		try {
@@ -245,7 +243,7 @@ public class DataStore implements TransactionParticipant{
 	}
 	
 	public void setDirty(VTransaction txn, String key){
-		checkHaveAnActiveTransaction();
+		checkHaveAnActiveTransaction(txn);
 		String storeKey = key.substring(key.indexOf('.'));
 		String table = key.substring(0,key.indexOf('.'));
 		try {
