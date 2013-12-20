@@ -79,6 +79,8 @@ public class VTransaction {
 		abort(e);
 	}
 	
+	Throwable lastThrow;
+	
 	public void abort(Throwable t) {
 		checkThread("abort");
 		if (State.Aborted == state) {
@@ -98,6 +100,7 @@ public class VTransaction {
 			}
 		}
 		state = State.Aborted;
+		lastThrow = t;
 		throw new IllegalStateException("Bad abort a transaction.. ",t);
 	}
 }

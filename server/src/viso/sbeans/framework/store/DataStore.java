@@ -2,6 +2,7 @@ package viso.sbeans.framework.store;
 
 import java.io.ObjectStreamClass;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -85,9 +86,10 @@ public class DataStore implements TransactionParticipant{
 
 	}
 
-	public void init(String base, String root,
+	public DataStore init(String base, String root,
 			Set<String> fileNames){
 		store = new Store(base,root,fileNames);
+		return this;
 	}
 	
 	public void shutdown(){
@@ -196,7 +198,7 @@ public class DataStore implements TransactionParticipant{
 
 	public void put(VTransaction txn, String key, byte[] value){
 		checkHaveAnActiveTransaction(txn);
-		String storeKey = key.substring(key.indexOf('.'));
+		String storeKey = key.substring(key.indexOf('.')+1);
 		String table = key.substring(0,key.indexOf('.'));
 		try {
 			store.put(checkDbTxn(txn), table, storeKey.getBytes("UTF-8"), value);
@@ -208,7 +210,7 @@ public class DataStore implements TransactionParticipant{
 	
 	public boolean putNoOverWrite(VTransaction txn, String key, byte[] value){
 		checkHaveAnActiveTransaction(txn);
-		String storeKey = key.substring(key.indexOf('.'));
+		String storeKey = key.substring(key.indexOf('.')+1);
 		String table = key.substring(0,key.indexOf('.'));
 		try {
 			return store.putNoOverWrite(checkDbTxn(txn), table, storeKey.getBytes("UTF-8"), value);
@@ -220,7 +222,7 @@ public class DataStore implements TransactionParticipant{
 	
 	public boolean delete(VTransaction txn, String key){
 		checkHaveAnActiveTransaction(txn);
-		String storeKey = key.substring(key.indexOf('.'));
+		String storeKey = key.substring(key.indexOf('.')+1);
 		String table = key.substring(0,key.indexOf('.'));
 		try {
 			return store.delete(checkDbTxn(txn), table, storeKey.getBytes("UTF-8"));
@@ -232,7 +234,7 @@ public class DataStore implements TransactionParticipant{
 	
 	public byte[] get(VTransaction txn, String key,boolean writeLock){
 		checkHaveAnActiveTransaction(txn);
-		String storeKey = key.substring(key.indexOf('.'));
+		String storeKey = key.substring(key.indexOf('.')+1);
 		String table = key.substring(0,key.indexOf('.'));
 		try {
 			return store.get(checkDbTxn(txn), table, storeKey.getBytes("UTF-8"), writeLock);
@@ -244,7 +246,7 @@ public class DataStore implements TransactionParticipant{
 	
 	public void setDirty(VTransaction txn, String key){
 		checkHaveAnActiveTransaction(txn);
-		String storeKey = key.substring(key.indexOf('.'));
+		String storeKey = key.substring(key.indexOf('.')+1);
 		String table = key.substring(0,key.indexOf('.'));
 		try {
 			store.delete(checkDbTxn(txn), table, storeKey.getBytes("UTF-8"));

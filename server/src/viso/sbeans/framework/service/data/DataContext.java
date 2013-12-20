@@ -49,12 +49,33 @@ public class DataContext implements TransactionListener{
 		return flushes;
 	}
 	
-	public DataObject getObject(String key){
-		return null;
+	public void setDirty(DataObject object){
+		objects.get(object).setDirty();
 	}
 	
-	public void removeObject(String key){
-		
+	public void removeObject(DataObject object){
+		objects.get(object).delete();
+		objects.remove(object);
+	}
+	
+	public void addObject(DataObject object, DataObjectReference<?> ref){
+		if(objects.containsKey(object)){
+			throw new IllegalStateException("object already put");
+		}
+		objects.put(object, ref);
+	}
+	
+	public DataObjectReference<?> addManaged(DataObject object, String key){
+		if(null!=objects.get(object)){
+			throw new IllegalStateException("object already put");
+		}
+		DataObjectReference<?> ref = DataObjectReference.createReference(this, key, object);
+		objects.put(object, ref);
+		return ref;
+	}
+	
+	public DataObjectReference<?> getReference(String key,boolean writeLock){
+		return DataObjectReference.getReference(this, key, writeLock);
 	}
 	
 	public DataObjectReference<?> find(String key){
@@ -62,7 +83,10 @@ public class DataContext implements TransactionListener{
 	}
 	
 	public void unregister(String key){
-		refs.remove(key);
+		DataObjectReference<?> ref = refs.remove(key);
+		if(ref!=null && ref.getObject()!=null){
+			objects.remove(ref.getObject());
+		}
 	}
 	
 	public void register(String key,DataObjectReference<?> ref){
@@ -72,7 +96,7 @@ public class DataContext implements TransactionListener{
 	@Override
 	public void beforeComplete(VTransaction transaction) {
 		// TODO Auto-generated method stub
-		
+		DataObjectReference.flushAll(this, flushAll());
 	}
 	
 }
