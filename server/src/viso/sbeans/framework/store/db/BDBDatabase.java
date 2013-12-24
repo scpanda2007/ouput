@@ -53,6 +53,7 @@ public class BDBDatabase {
 			throw new IllegalStateException("Faild get value.");
 		} catch (DatabaseException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
 			throw new IllegalStateException("Faild get value.",e);
 		}
 	}

@@ -1,6 +1,7 @@
 package viso.sbeans.framework.store.data;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import viso.sbeans.framework.service.data.DataContext;
@@ -81,6 +82,7 @@ public class DataObjectReference<T extends DataObject> implements Serializable{
 	
 	public void setDirty(){
 		state = State.Dirty;
+		modified = SerialUtil.write(object,context.serializer);
 	}
 	
 	public void delete(){
@@ -167,12 +169,12 @@ public class DataObjectReference<T extends DataObject> implements Serializable{
 	static public DataObjectReference<? extends DataObject> getReference(DataContext context,String key,boolean writeLock){
 		DataObjectReference<?> ref = context.find(key);
 		if(ref!=null){
-			System.out.println(" duplicate op...");
+//			System.out.println(" duplicate op...");
 			return ref;
 		}
 		byte[] data = context.store.get(context.transaction, key, writeLock);
 		if(data==null){
-			System.out.println(" data is null");
+//			System.out.println(" data is null");
 			return null;//没有相关的数据
 		}
 		ref = new DataObjectReference<DataObject>(key, context);

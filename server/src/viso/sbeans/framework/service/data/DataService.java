@@ -77,6 +77,10 @@ public class DataService {
 		this.joinDataContext().removeObject(object);
 	}
 	
+	public void setDirty(DataObject object){
+		this.joinDataContext().setDirty(object);
+	}
+	
 	public DataObjectReference<?> addManaged(String key, DataObject object){
 		return this.joinDataContext().addManaged(object, key);
 	}
